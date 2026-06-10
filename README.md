@@ -31,51 +31,6 @@ My custom configuration for [Dynacat](https://github.com/Panonim/dynacat), theme
 
 ---
 
-## Quick start
-
-### 1. Copy the config
-
-```bash
-git clone https://github.com/YOUR_USERNAME/dynacat
-cd dynacat
-cp .env.example .env
-```
-
-### 2. Fill in `.env`
-
-Open `.env` and replace every placeholder with your actual values. Each variable is documented inline. The sections are:
-
-- **Branding** — dashboard label shown in the weather strip
-- **Services** — your base domain + any internal-only service URLs
-- **Pi-hole** — base URL, name, and web UI password for each instance
-- **Glance Agent** — URL and token for each remote server
-- **Weather proxy** — base URL of the caching proxy
-- **API proxy** — base URL of the custom proxy (TickTick / Calendar / Parcels)
-- **Tautulli / Plex** — IP, port, API key, Plex server ID
-- **Miniflux / Karakeep / UniFi** — URLs and API keys
-- **CalDAV** — credentials consumed by the API proxy
-
-### 3. Run Glance
-
-```yaml
-# docker-compose.yml
-services:
-  glance:
-    image: glanceapp/glance
-    volumes:
-      - ./config:/app/config
-      - ./assets:/app/assets
-    env_file: .env
-    ports:
-      - "8080:8080"
-    restart: unless-stopped
-```
-
-```bash
-docker compose up -d
-```
-
----
 
 ## Configuration
 
@@ -121,7 +76,7 @@ The weather strip uses two data sources that need a caching reverse proxy:
 | `/tomorrow/forecast/24h` | Tomorrow.io Hourly forecast |
 | `/openmeteo/forecast` | [Open-Meteo](https://open-meteo.com/) daily forecast (free, no key needed) |
 
-Set `WEATHER_PROXY_URL` in `.env` to the base URL of your proxy instance. See `.tmp/WEATHER_SETUP_COMPLETE.md` for a ready-made setup guide.
+Set `WEATHER_PROXY_URL` in `.env` to the base URL of your proxy instance. 
 
 ### API proxy
 
@@ -136,15 +91,10 @@ A second proxy handles services that require session auth or OAuth, which Glance
 | `GET /calendar/events` | CalDAV calendar |
 | `GET /deliveries` | Parcel app deliveries |
 
-Set `API_PROXY_URL` in `.env`. See `config/widgets/TICKTICK_README.md` and `config/widgets/PARCEL_README.md` for setup guides.
+Set `API_PROXY_URL` in `.env`. 
 
 ---
 
-## Pi-hole note
-
-Pi-hole v6 dropped API token support in favour of session-based auth (POST `/api/auth` → session SID). Glance widget templates cannot POST, so the Pi-hole widget also requires the API proxy to handle the auth handshake and re-expose plain GET endpoints. If your proxy does not cover Pi-hole, the cards will show **offline**.
-
----
 
 ## Design system
 
