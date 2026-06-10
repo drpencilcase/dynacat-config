@@ -10,7 +10,8 @@ My custom configuration for [Dynacat](https://github.com/Panonim/dynacat), theme
 
 | Widget | Source | Notes |
 |---|---|---|
-| **Weather strip** | Tomorrow.io (nowcast/24h) + Open-Meteo (7-day) | Via local caching proxy |
+| **Weather strip** | Tomorrow.io (nowcast/24h) + Open-Meteo (7-day) | Via local caching proxy (`weather-head.yml`) |
+| **Weather strip (alt)** | Open-Meteo only | No proxy or API key needed (`weather-head-openmeteo.yml`) |
 | **Services** | Docker containers + monitor | Split-column icon grid |
 | **Now Playing / Media** | Tautulli | Live sessions + recently added/watched carousels |
 | **Feed reader** | Miniflux | Latest unread articles |
@@ -26,7 +27,7 @@ My custom configuration for [Dynacat](https://github.com/Panonim/dynacat), theme
 
 ## Requirements
 
-- **Weather proxy** — a small caching proxy in front of Tomorrow.io and Open-Meteo (see [Weather setup](#weather-proxy))
+- **Weather proxy** — required only if using `weather-head.yml` (Tomorrow.io); not needed for `weather-head-openmeteo.yml` (see [Weather setup](#weather-proxy))
 - **API proxy** — handles OAuth/session auth for TickTick, CalDAV, and Parcel (see [API proxy](#api-proxy))
 
 ---
@@ -68,15 +69,19 @@ Available tones: `iris` `foam` `love` `gold` `rose` `pine`
 
 ### Weather proxy
 
-The weather strip uses two data sources that need a caching reverse proxy:
+Two weather widget variants are available:
+
+**`weather-head-openmeteo.yml`** — calls [Open-Meteo](https://open-meteo.com/) directly (free, no account or proxy needed). Set `WEATHER_LAT` and `WEATHER_LON` in `.env`.
+
+**`weather-head.yml`** — uses Tomorrow.io for higher-resolution nowcast and 24h data, routed through a local caching proxy. Requires a proxy in front of:
 
 | Endpoint | Source |
 |---|---|
 | `/tomorrow/nowcast` | [Tomorrow.io](https://www.tomorrow.io/) Realtime API |
 | `/tomorrow/forecast/24h` | Tomorrow.io Hourly forecast |
-| `/openmeteo/forecast` | [Open-Meteo](https://open-meteo.com/) daily forecast (free, no key needed) |
+| `/openmeteo/forecast` | Open-Meteo daily forecast |
 
-Set `WEATHER_PROXY_URL` in `.env` to the base URL of your proxy instance. 
+Set `WEATHER_PROXY_URL` in `.env` to the base URL of your proxy instance.
 
 ### API proxy
 
@@ -129,6 +134,7 @@ dynacat/
 │       ├── ticktick-tasks.yml
 │       ├── unifi.yml
 │       ├── weather-head.yml
+│       ├── weather-head-openmeteo.yml  ← proxy-free alternative (Open-Meteo only)
 │       └── weather.yml       ← alternate sidebar weather widget (disabled by default)
 └── assets/
     ├── custom/
