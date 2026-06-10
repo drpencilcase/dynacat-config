@@ -1,0 +1,40 @@
+# ── CONFIGURATION ────────────────────────────────────────────────────────────
+# Set these variables in your .env file:
+#
+#   STATS_LOCAL_NAME        Display name for the local (this machine) server
+#
+#   STATS_SERVER_N_NAME     Display name for remote server N
+#   STATS_SERVER_N_URL      glance-agent URL, e.g. http://192.168.1.10:27973
+#   STATS_SERVER_N_TOKEN    Token set in the glance-agent config on that host
+#
+# Add or remove remote server blocks below to match your setup.
+# Remove the entire remote block if you only monitor the local machine.
+# ─────────────────────────────────────────────────────────────────────────────
+- type: server-stats
+  servers:
+      - type: local
+        name: ${STATS_LOCAL_NAME}
+        hide-swap: true
+        hide-mountpoints-by-default: true
+        mountpoints:
+            "/main":
+                name: Shares
+                hide: false
+            "/appdata":
+                name: AppData
+                hide: false
+
+      - type: remote
+        name: ${STATS_SERVER_1_NAME}
+        url: ${STATS_SERVER_1_URL}
+        token: ${STATS_SERVER_1_TOKEN}
+
+      - type: remote
+        name: ${STATS_SERVER_2_NAME}
+        url: ${STATS_SERVER_2_URL}
+        token: ${STATS_SERVER_2_TOKEN}
+
+      - type: remote
+        name: ${STATS_SERVER_3_NAME}
+        url: ${STATS_SERVER_3_URL}
+        token: ${STATS_SERVER_3_TOKEN}

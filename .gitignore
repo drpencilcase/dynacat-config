@@ -1,0 +1,8 @@
+# Credentials — never commit real values
+.env
+
+# macOS
+.DS_Store
+
+# Temporary research/notes
+.tmp/

@@ -1,0 +1,97 @@
+# ── CONFIGURATION ────────────────────────────────────────────────────────────
+# Set this variable in your .env file:
+#
+#   API_PROXY_URL   Base URL of your custom API proxy
+#                   e.g. https://api-proxy.example.com
+#
+# The proxy must expose GET /ticktick/habits returning a JSON array of habit
+# objects with fields: name, color, status, goal, iconRes, totalCheckIns.
+#
+# Options (edit the options block below):
+#   collapse-after    Items shown before "show more" appears
+#   show-all          true = disable collapsing entirely
+#   show-archived     true = include archived (status != 0) habits
+# ─────────────────────────────────────────────────────────────────────────────
+- type: custom-api
+  title: Habits
+  cache: 5m
+  method: GET
+  url: ${API_PROXY_URL}/ticktick/habits
+  options:
+      collapse-after: 6
+      show-all: false
+      show-archived: false
+  template: |
+      {{ $habits := .JSON.Array "" }}
+      {{ $collapseAfter := .Options.IntOr "collapse-after" 6 }}
+      {{ $showAll := .Options.BoolOr "show-all" false }}
+      {{ $showArchived := .Options.BoolOr "show-archived" false }}
+
+      {{ $activeCount := 0 }}
+      {{ range $habit := $habits }}
+        {{ $status := $habit.Int "status" }}
+        {{ if or $showArchived (eq $status 0) }}
+          {{ $activeCount = add $activeCount 1 }}
+        {{ end }}
+      {{ end }}
+
+      {{ $count := $activeCount }}
+      {{ if eq $count 0 }}
+        <div class="flex justify-center text-center">
+          <div class="color-subdue size-h4">No active habits</div>
+        </div>
+      {{ else }}
+        <div class="flex justify-center gap-10 text-center" style="margin-bottom:1rem;">
+          <div>
+            <div class="color-highlight size-h3">{{ $count }}</div>
+            <div class="size-h6">ACTIVE {{ if eq $count 1 }}HABIT{{ else }}HABITS{{ end }}</div>
+          </div>
+        </div>
+
+        <ul class="list list-gap-12 {{ if not $showAll }}collapsible-container{{ end }}"
+            {{ if not $showAll }}data-collapse-after="{{ $collapseAfter }}"{{ end }}
+            style="padding-left: 0; margin: 0;">
+          {{ range $index, $habit := $habits }}
+            {{ $status := $habit.Int "status" }}
+            {{ if or $showArchived (eq $status 0) }}
+            {{ $name := $habit.String "name" }}
+            {{ $color := $habit.String "color" }}
+            {{ $totalCheckIns := $habit.Int "totalCheckIns" }}
+            {{ $goal := $habit.Float "goal" }}
+            {{ $iconRes := $habit.String "iconRes" }}
+
+            {{ $icon := "⭐" }}
+            {{ if eq $iconRes "habit_early_to_rise" }}{{ $icon = "🌅" }}
+            {{ else if eq $iconRes "habit_early_to_bed" }}{{ $icon = "🌙" }}
+            {{ else if eq $iconRes "habit_stretch" }}{{ $icon = "💪" }}
+            {{ else if eq $iconRes "habit_reading" }}{{ $icon = "📚" }}
+            {{ else if eq $iconRes "habit_meditation" }}{{ $icon = "🧘" }}
+            {{ else if eq $iconRes "habit_water" }}{{ $icon = "💧" }}
+            {{ else if eq $iconRes "habit_run" }}{{ $icon = "🏃" }}
+            {{ else if eq $iconRes "habit_quit_smoking" }}{{ $icon = "🚭" }}
+            {{ end }}
+
+            <li style="list-style: none; padding: 10px 12px; background: rgba(255,255,255,0.02); border-radius: 8px; border-left: 3px solid {{ $color | safeCSS }};">
+              <div style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+                  <span style="font-size: 1.3em;">{{ $icon }}</span>
+                  <div style="flex: 1; min-width: 0;">
+                    <div class="color-highlight" style="font-size: 0.95em; font-weight: 500;">
+                      {{ $name }}
+                    </div>
+                    <div style="font-size: 0.75em; color: var(--color-subdue); margin-top: 2px;">
+                      {{ $totalCheckIns }} check-ins
+                    </div>
+                  </div>
+                </div>
+                <div style="text-align: right; margin-left: 10px;">
+                  <div class="color-positive" style="font-size: 1.1em; font-weight: 600;">
+                    {{ $totalCheckIns }}
+                  </div>
+                </div>
+              </div>
+            </li>
+            {{ end }}
+          {{ end }}
+        </ul>
+      {{ end }}

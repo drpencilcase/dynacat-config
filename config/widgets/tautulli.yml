@@ -1,0 +1,246 @@
+# ── CONFIGURATION ────────────────────────────────────────────────────────────
+# Set these variables in your .env file:
+#
+#   TAUTULLI_IP       IP address of your Tautulli host
+#   TAUTULLI_PORT     Port (default 8181 — Settings → Web Interface)
+#   TAUTULLI_API_KEY  Settings → Web Interface → API key
+#   SERVER_ID         Your Plex server machine ID (appears in the Plex web URL
+#                     when browsing a library: #!/server/{SERVER_ID}/...)
+#
+# Options:
+#   carousel-count    Number of items to fetch for each media carousel (default 16)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Now playing
+- type: custom-api
+  title: Now Playing
+  cache: 30s
+  url: http://${TAUTULLI_IP}:${TAUTULLI_PORT}/api/v2?apikey=${TAUTULLI_API_KEY}&cmd=get_activity
+  template: |
+      {{ $sessions := .JSON.Array "response.data.sessions" }}
+      {{ $total := len $sessions }}
+
+      {{ if eq $total 0 }}
+        <div class="np-empty">Nothing playing right now</div>
+      {{ else }}
+        {{ range $i, $s := $sessions }}
+          {{ $type := $s.String "media_type" }}
+          {{ $isEpisode := eq $type "episode" }}
+          {{ $isTrack := eq $type "track" }}
+
+          {{ $title := "" }}
+          {{ $eyebrow := "" }}
+          {{ $subtitle := "" }}
+          {{ $thumb := "" }}
+          {{ $hint := "" }}
+
+          {{ if $isEpisode }}
+            {{ $title = $s.String "grandparent_title" }}
+            {{ $eyebrow = printf "S%02d · E%02d" ($s.Int "parent_media_index") ($s.Int "media_index") }}
+            {{ $subtitle = $s.String "title" }}
+            {{ $thumb = $s.String "grandparent_thumb" }}
+            {{ $hint = $s.String "grandparent_title" }}
+          {{ else if $isTrack }}
+            {{ $title = $s.String "title" }}
+            {{ $eyebrow = $s.String "grandparent_title" }}
+            {{ $subtitle = $s.String "parent_title" }}
+            {{ $thumb = $s.String "thumb" }}
+            {{ $hint = $s.String "title" }}
+          {{ else }}
+            {{ $title = $s.String "title" }}
+            {{ $eyebrow = printf "%d" ($s.Int "year") }}
+            {{ $subtitle = "" }}
+            {{ $thumb = $s.String "thumb" }}
+            {{ $hint = $s.String "title" }}
+          {{ end }}
+
+          {{ $durMs := $s.Int "duration" }}
+          {{ $offMs := $s.Int "view_offset" }}
+          {{ $pct := $s.Int "progress_percent" }}
+          {{ $remSec := div (sub $durMs $offMs) 1000 }}
+          {{ if lt $remSec 0 }}{{ $remSec = 0 }}{{ end }}
+          {{ $remMin := div $remSec 60 }}
+          {{ $now := now }}
+          {{ $endAt := $now.Add (duration (printf "%ds" $remSec)) | formatTime "3:04 PM" }}
+          {{ $ratingKey := $s.String "rating_key" }}
+          {{ $isPaused := eq ($s.String "state") "paused" }}
+          {{ $fillColor := "var(--rose-iris)" }}
+          {{ if $isPaused }}{{ $fillColor = "var(--rose-muted)" }}{{ end }}
+          {{ $imgUrl := printf "http://${TAUTULLI_IP}:${TAUTULLI_PORT}/api/v2?apikey=${TAUTULLI_API_KEY}&cmd=pms_image_proxy&img=%s" $thumb }}
+
+          <div class="np-hero {{ if gt $i 0 }}np-hero--more{{ end }}">
+            <a href="https://app.plex.tv/desktop/#!/server/${SERVER_ID}/details?key=%2Flibrary%2Fmetadata%2F{{ $ratingKey }}"
+               target="_blank"
+               class="np-hero-poster">
+              <img src="{{ $imgUrl }}" alt="{{ $title }}" />
+              <div class="np-hero-poster-hint">{{ $hint }}</div>
+            </a>
+            <div class="np-hero-info">
+              <div class="np-hero-eyebrow">{{ $eyebrow }}</div>
+              <div class="np-hero-title">{{ $title }}</div>
+              {{ if $subtitle }}<div class="np-hero-episode">"{{ $subtitle }}"</div>{{ end }}
+              <div class="np-hero-meta">
+                <span class="np-user">{{ $s.String "friendly_name" }}</span>
+                <span class="np-sep">·</span>
+                <span title="{{ $s.String "player" }}">{{ $s.String "player" }}</span>
+              </div>
+              <div class="np-progress">
+                <div class="np-progress-fill" style="width: {{ $pct }}%; background: {{ $fillColor }};"></div>
+              </div>
+              <div class="np-hero-time">
+                <span>{{ $pct }}% watched</span>
+                <span class="np-sep">·</span>
+                <span>{{ $remMin }}m left</span>
+                <span class="np-sep">·</span>
+                <span>ends {{ $endAt }}</span>
+              </div>
+            </div>
+            {{ if and (eq $i 0) (gt $total 1) }}
+              <div class="np-hero-pager">
+                {{ range $j, $pd := $sessions }}
+                  <span class="np-hero-dot {{ if eq $j 0 }}is-active{{ end }}"></span>
+                {{ end }}
+              </div>
+            {{ end }}
+          </div>
+        {{ end }}
+      {{ end }}
+
+- type: group
+  widgets:
+      - type: custom-api
+        title: Recently Added
+        cache: 5m
+        update-interval: 5m
+        options:
+            carousel-count: 16
+        url: http://${TAUTULLI_IP}:${TAUTULLI_PORT}/api/v2?apikey=${TAUTULLI_API_KEY}&cmd=get_recently_added&count=16
+        template: |
+            {{ $serverID := "${SERVER_ID}" }}
+            {{ $tBase := "http://${TAUTULLI_IP}:${TAUTULLI_PORT}/api/v2?apikey=${TAUTULLI_API_KEY}&cmd=pms_image_proxy&img=" }}
+            {{ $rows := .JSON.Array "response.data.recently_added" }}
+
+            {{ if eq (len $rows) 0 }}
+              <div class="np-empty">Nothing recently added</div>
+            {{ else }}
+              <div class="dy-mc-carousel">
+                <button class="dy-mc-arrow dy-mc-arrow-left"
+                  onclick='document.getElementById("mc-ra").scrollBy({left:-390,behavior:"smooth"})'
+                  onmouseenter='clearInterval(window._mc);window._mc=setInterval(function(){var t=document.getElementById("mc-ra");if(t.scrollLeft<=0){clearInterval(window._mc);}else{t.scrollLeft-=6;}},16)'
+                  onmouseleave='clearInterval(window._mc)'
+                  aria-label="scroll left">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <div class="dy-mc-track" id="mc-ra">
+                  {{ range $rows }}
+                    {{ $type := .String "media_type" }}
+                    {{ $img := .String "thumb" }}
+                    {{ $title := .String "title" }}
+                    {{ $sub := "" }}
+                    {{ $ratingKey := .String "rating_key" }}
+                    {{ $addedAt := printf "%d" (.Int "added_at") }}
+
+                    {{ if eq $type "episode" }}
+                      {{ $img = .String "grandparent_thumb" }}
+                      {{ $title = .String "grandparent_title" }}
+                      {{ $sub = printf "S%d · E%d" (.Int "parent_media_index") (.Int "media_index") }}
+                    {{ else if eq $type "season" }}
+                      {{ $img = .String "parent_thumb" }}
+                      {{ $title = .String "parent_title" }}
+                      {{ $sub = .String "title" }}
+                    {{ else }}
+                      {{ $sub = printf "%d" (.Int "year") }}
+                    {{ end }}
+
+                    <a class="dy-mc-card"
+                       href="https://app.plex.tv/desktop/#!/server/{{ $serverID }}/details?key=%2Flibrary%2Fmetadata%2F{{ $ratingKey }}"
+                       target="_blank">
+                      <div class="dy-mc-poster">
+                        <img src="{{ $tBase }}{{ $img }}" alt="{{ $title }}" />
+                        <div class="dy-mc-poster-hint">{{ $title }}</div>
+                      </div>
+                      <div class="dy-mc-title">{{ $title }}</div>
+                      <div class="dy-mc-sub">{{ $sub }}</div>
+                      <div class="dy-mc-time">
+                        <span {{ parseRelativeTime "unix" $addedAt }}></span><span class="np-sep"> ago</span>
+                      </div>
+                    </a>
+                  {{ end }}
+                </div>
+                <button class="dy-mc-arrow dy-mc-arrow-right"
+                  onclick='document.getElementById("mc-ra").scrollBy({left:390,behavior:"smooth"})'
+                  onmouseenter='clearInterval(window._mc);window._mc=setInterval(function(){var t=document.getElementById("mc-ra");if(t.scrollLeft>=t.scrollWidth-t.clientWidth){clearInterval(window._mc);}else{t.scrollLeft+=6;}},16)'
+                  onmouseleave='clearInterval(window._mc)'
+                  aria-label="scroll right">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+            {{ end }}
+
+      - type: custom-api
+        title: Recently Watched
+        cache: 5m
+        update-interval: 5m
+        options:
+            carousel-count: 16
+        url: http://${TAUTULLI_IP}:${TAUTULLI_PORT}/api/v2?apikey=${TAUTULLI_API_KEY}&cmd=get_home_stats&stat_id=last_watched&count=16
+        template: |
+            {{ $serverID := "${SERVER_ID}" }}
+            {{ $tBase := "http://${TAUTULLI_IP}:${TAUTULLI_PORT}/api/v2?apikey=${TAUTULLI_API_KEY}&cmd=pms_image_proxy&img=" }}
+            {{ $rows := .JSON.Array "response.data.rows" }}
+
+            {{ if eq (len $rows) 0 }}
+              <div class="np-empty">Nothing watched recently</div>
+            {{ else }}
+              <div class="dy-mc-carousel">
+                <button class="dy-mc-arrow dy-mc-arrow-left"
+                  onclick='document.getElementById("mc-rw").scrollBy({left:-390,behavior:"smooth"})'
+                  onmouseenter='clearInterval(window._mc);window._mc=setInterval(function(){var t=document.getElementById("mc-rw");if(t.scrollLeft<=0){clearInterval(window._mc);}else{t.scrollLeft-=6;}},16)'
+                  onmouseleave='clearInterval(window._mc)'
+                  aria-label="scroll left">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+                <div class="dy-mc-track" id="mc-rw">
+                  {{ range $rows }}
+                    {{ $type := .String "media_type" }}
+                    {{ $img := .String "thumb" }}
+                    {{ $title := .String "title" }}
+                    {{ $sub := "" }}
+                    {{ $ratingKey := .String "rating_key" }}
+                    {{ $lastWatch := .String "last_watch" }}
+                    {{ $user := .String "friendly_name" }}
+
+                    {{ if eq $type "episode" }}
+                      {{ $img = .String "grandparent_thumb" }}
+                      {{ $title = .String "grandparent_title" }}
+                      {{ $sub = printf "S%d · E%d" (.Int "parent_media_index") (.Int "media_index") }}
+                    {{ else }}
+                      {{ $sub = printf "%d" (.Int "year") }}
+                    {{ end }}
+
+                    <a class="dy-mc-card"
+                       href="https://app.plex.tv/desktop/#!/server/{{ $serverID }}/details?key=%2Flibrary%2Fmetadata%2F{{ $ratingKey }}"
+                       target="_blank">
+                      <div class="dy-mc-poster">
+                        <img src="{{ $tBase }}{{ $img }}" alt="{{ $title }}" />
+                        <div class="dy-mc-poster-hint">{{ $title }}</div>
+                      </div>
+                      <div class="dy-mc-title">{{ $title }}</div>
+                      <div class="dy-mc-sub">{{ $sub }}</div>
+                      <div class="dy-mc-time">
+                        <span class="dy-mc-user">{{ $user }}</span>
+                        <span class="np-sep">·</span>
+                        <span {{ parseRelativeTime "unix" $lastWatch }}></span><span class="np-sep"> ago</span>
+                      </div>
+                    </a>
+                  {{ end }}
+                </div>
+                <button class="dy-mc-arrow dy-mc-arrow-right"
+                  onclick='document.getElementById("mc-rw").scrollBy({left:390,behavior:"smooth"})'
+                  onmouseenter='clearInterval(window._mc);window._mc=setInterval(function(){var t=document.getElementById("mc-rw");if(t.scrollLeft>=t.scrollWidth-t.clientWidth){clearInterval(window._mc);}else{t.scrollLeft+=6;}},16)'
+                  onmouseleave='clearInterval(window._mc)'
+                  aria-label="scroll right">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </div>
+            {{ end }}

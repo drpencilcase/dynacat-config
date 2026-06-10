@@ -1,0 +1,45 @@
+# ── CONFIGURATION ────────────────────────────────────────────────────────────
+# Set these variables in your .env file:
+#
+#   MINIFLUX_URL      Full base URL of your Miniflux instance
+#                     e.g. https://miniflux.example.com
+#   MINIFLUX_API_KEY  Settings → API Keys → Create a new API key
+#
+# Options (edit the options block below):
+#   collapse-after    Number of articles shown before "show more" appears (default 5)
+# ─────────────────────────────────────────────────────────────────────────────
+- type: custom-api
+  title: miniflux
+  cache: 15m
+  update-interval: 15m
+  method: GET
+  options:
+      collapse-after: 5
+  url: ${MINIFLUX_URL}/v1/entries?direction=desc&order=published_at&limit=10
+  headers:
+      X-Auth-Token: ${MINIFLUX_API_KEY}
+      Accept: application/json
+  template: |
+      {{ $entries := .JSON.Array "entries" }}
+      {{ $collapseAfter := .Options.IntOr "collapse-after" 5 }}
+
+      {{ if eq (len $entries) 0 }}
+        <div class="dy-empty">no unread articles</div>
+      {{ else }}
+        <ul class="articles articles-byline list collapsible-container" data-collapse-after="{{ $collapseAfter }}">
+          {{ range $entry := $entries }}
+            {{ $title := $entry.String "title" }}
+            {{ $url := $entry.String "url" }}
+            {{ $feedTitle := ($entry.Get "feed").String "title" }}
+            {{ $publishedAt := $entry.String "published_at" }}
+            <li class="art-byline" onclick="window.open('{{ $url }}', '_blank')">
+              <div class="art-meta-top">
+                <span class="art-src">{{ $feedTitle }}</span>
+                <span class="art-dot">·</span>
+                <span class="art-ago"><span {{ parseRelativeTime "2006-01-02T15:04:05Z07:00" $publishedAt }}></span> ago</span>
+              </div>
+              <div class="art-title">{{ $title }}</div>
+            </li>
+          {{ end }}
+        </ul>
+      {{ end }}

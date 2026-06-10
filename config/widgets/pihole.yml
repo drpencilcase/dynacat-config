@@ -1,0 +1,142 @@
+# ── CONFIGURATION ────────────────────────────────────────────────────────────
+# Set these variables in your .env file:
+#
+#   PIHOLE_1_URL      Base URL of instance 1, e.g. http://192.168.1.10:8022
+#   PIHOLE_1_NAME     Display name shown in the card header
+#   PIHOLE_1_PASSWORD Pi-hole web UI password (Settings → Web Interface)
+#   PIHOLE_2_URL / PIHOLE_2_NAME / PIHOLE_2_PASSWORD  — second instance
+#
+# Single-instance setup: remove the second <div class="dy-ph-card"> block and
+# the second pair of fetch calls in the onclick buttons.
+#
+# ⚠️  Pi-hole v6 auth note: Pi-hole v6 does NOT support Bearer-token auth from
+# Glance widget templates (which are GET-only). This widget requires a backend
+# proxy that handles POST /api/auth and re-exposes GET endpoints with the SID
+# baked in. If you run a direct setup without a proxy, the API calls will
+# return 401 and the cards will show "offline".
+# ─────────────────────────────────────────────────────────────────────────────
+- type: custom-api
+  title: Pi-hole DNS
+  cache: 5m
+  update-interval: 5m
+  template: |
+    {{
+      $fbSum := newRequest "${PIHOLE_1_URL}/api/stats/summary"
+        | withHeader "Authorization" "Bearer ${PIHOLE_1_PASSWORD}"
+        | getResponse
+    }}
+    {{
+      $fbBlk := newRequest "${PIHOLE_1_URL}/api/dns/blocking"
+        | withHeader "Authorization" "Bearer ${PIHOLE_1_PASSWORD}"
+        | getResponse
+    }}
+    {{
+      $fbMsg := newRequest "${PIHOLE_1_URL}/api/info/messages"
+        | withHeader "Authorization" "Bearer ${PIHOLE_1_PASSWORD}"
+        | getResponse
+    }}
+    {{
+      $jbSum := newRequest "${PIHOLE_2_URL}/api/stats/summary"
+        | withHeader "Authorization" "Bearer ${PIHOLE_2_PASSWORD}"
+        | getResponse
+    }}
+    {{
+      $jbBlk := newRequest "${PIHOLE_2_URL}/api/dns/blocking"
+        | withHeader "Authorization" "Bearer ${PIHOLE_2_PASSWORD}"
+        | getResponse
+    }}
+    {{
+      $jbMsg := newRequest "${PIHOLE_2_URL}/api/info/messages"
+        | withHeader "Authorization" "Bearer ${PIHOLE_2_PASSWORD}"
+        | getResponse
+    }}
+    {{ $fbOk := eq $fbSum.Response.StatusCode 200 }}
+    {{ $jbOk := eq $jbSum.Response.StatusCode 200 }}
+    <div class="dy-ph-wrap">
+
+      <div class="dy-ph-card" data-tone="pine">
+        <div class="dy-ph-head">
+          <a href="${PIHOLE_1_URL}/admin/" target="_blank" class="dy-ph-name">${PIHOLE_1_NAME}</a>
+          {{ if not $fbOk -}}
+            <span class="dy-ph-badge is-offline">offline</span>
+          {{- else if eq ($fbBlk.JSON.String "blocking") "enabled" -}}
+            <span class="dy-ph-badge is-active">active</span>
+          {{- else -}}
+            <span class="dy-ph-badge is-disabled">disabled</span>
+          {{- end }}
+        </div>
+        {{ if $fbOk }}
+        <div class="dy-ph-stats">
+          <div class="dy-ph-stat">
+            <span class="dy-ph-val">{{ printf "%.1f" ($fbSum.JSON.Float "queries.frequency") }}</span>
+            <span class="dy-ph-lbl">q/min</span>
+          </div>
+          <span class="dy-ph-dot"></span>
+          <div class="dy-ph-stat">
+            <span class="dy-ph-val">{{ formatApproxNumber ($fbSum.JSON.Int "queries.total") }}</span>
+            <span class="dy-ph-lbl">24h queries</span>
+          </div>
+          <span class="dy-ph-dot"></span>
+          <div class="dy-ph-stat">
+            <span class="dy-ph-val dy-ph-val-blocked">{{ printf "%.1f" ($fbSum.JSON.Float "queries.percent_blocked") }}%</span>
+            <span class="dy-ph-lbl">blocked</span>
+          </div>
+        </div>
+        <div class="dy-ph-bar-track">
+          <div class="dy-ph-bar-fill" style="width:{{ printf "%.1f" ($fbSum.JSON.Float "queries.percent_blocked") }}%"></div>
+        </div>
+        {{ $fbMsgs := $fbMsg.JSON.Array "messages" }}
+        {{ if gt (len $fbMsgs) 0 }}
+        <div class="dy-ph-warnings">
+          {{ range $fbMsgs }}<div class="dy-ph-warn">{{ .String "message" }}</div>{{ end }}
+        </div>
+        {{ end }}
+        {{ end }}
+      </div>
+
+      <div class="dy-ph-card" data-tone="pine">
+        <div class="dy-ph-head">
+          <a href="${PIHOLE_2_URL}/admin/" target="_blank" class="dy-ph-name">${PIHOLE_2_NAME}</a>
+          {{ if not $jbOk -}}
+            <span class="dy-ph-badge is-offline">offline</span>
+          {{- else if eq ($jbBlk.JSON.String "blocking") "enabled" -}}
+            <span class="dy-ph-badge is-active">active</span>
+          {{- else -}}
+            <span class="dy-ph-badge is-disabled">disabled</span>
+          {{- end }}
+        </div>
+        {{ if $jbOk }}
+        <div class="dy-ph-stats">
+          <div class="dy-ph-stat">
+            <span class="dy-ph-val">{{ printf "%.1f" ($jbSum.JSON.Float "queries.frequency") }}</span>
+            <span class="dy-ph-lbl">q/min</span>
+          </div>
+          <span class="dy-ph-dot"></span>
+          <div class="dy-ph-stat">
+            <span class="dy-ph-val">{{ formatApproxNumber ($jbSum.JSON.Int "queries.total") }}</span>
+            <span class="dy-ph-lbl">24h queries</span>
+          </div>
+          <span class="dy-ph-dot"></span>
+          <div class="dy-ph-stat">
+            <span class="dy-ph-val dy-ph-val-blocked">{{ printf "%.1f" ($jbSum.JSON.Float "queries.percent_blocked") }}%</span>
+            <span class="dy-ph-lbl">blocked</span>
+          </div>
+        </div>
+        <div class="dy-ph-bar-track">
+          <div class="dy-ph-bar-fill" style="width:{{ printf "%.1f" ($jbSum.JSON.Float "queries.percent_blocked") }}%"></div>
+        </div>
+        {{ $jbMsgs := $jbMsg.JSON.Array "messages" }}
+        {{ if gt (len $jbMsgs) 0 }}
+        <div class="dy-ph-warnings">
+          {{ range $jbMsgs }}<div class="dy-ph-warn">{{ .String "message" }}</div>{{ end }}
+        </div>
+        {{ end }}
+        {{ end }}
+      </div>
+
+      <div class="dy-ph-actions">
+        <button class="dy-ph-btn" onclick='(function(b){var t=300;function p(u,pw){fetch(u+"/api/dns/blocking",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+pw},body:JSON.stringify({blocking:false,timer:t})});}p("${PIHOLE_1_URL}","${PIHOLE_1_PASSWORD}");p("${PIHOLE_2_URL}","${PIHOLE_2_PASSWORD}");b.textContent="Paused!";b.classList.add("is-paused");setTimeout(function(){b.textContent="Pause 5 min";b.classList.remove("is-paused");},5000);})(this)'>Pause 5 min</button>
+        <button class="dy-ph-btn" onclick='(function(b){var t=600;function p(u,pw){fetch(u+"/api/dns/blocking",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+pw},body:JSON.stringify({blocking:false,timer:t})});}p("${PIHOLE_1_URL}","${PIHOLE_1_PASSWORD}");p("${PIHOLE_2_URL}","${PIHOLE_2_PASSWORD}");b.textContent="Paused!";b.classList.add("is-paused");setTimeout(function(){b.textContent="Pause 10 min";b.classList.remove("is-paused");},5000);})(this)'>Pause 10 min</button>
+      </div>
+
+    </div>

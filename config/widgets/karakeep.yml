@@ -1,0 +1,79 @@
+# ── CONFIGURATION ────────────────────────────────────────────────────────────
+# Set these variables in your .env file:
+#
+#   KARAKEEP_URL      IP:PORT of your Karakeep instance (no scheme)
+#                     e.g. 192.168.1.2:3000
+#   KARAKEEP_API_KEY  Settings → API Keys → Create a key
+#
+# Options (edit the options block below):
+#   mode              "random" shuffles from the pool on each render
+#                     "latest" shows the most recently saved bookmarks
+#   fetch-limit       How many bookmarks to fetch (pool size for random,
+#                     display count for latest)
+#   display-limit     Max items shown at once in random mode
+#   collapse-after    Items shown before "show more" appears
+# ─────────────────────────────────────────────────────────────────────────────
+- type: custom-api
+  title: karakeep
+  cache: 30m
+  update-interval: 30m
+  method: GET
+  options:
+      mode: random
+      fetch-limit: 100
+      display-limit: 10
+      collapse-after: 5
+  url: http://${KARAKEEP_URL}/api/v1/users/me/stats
+  headers:
+      Authorization: Bearer ${KARAKEEP_API_KEY}
+      Accept: application/json
+  template: |
+      {{ $mode := .Options.StringOr "mode" "latest" }}
+      {{ $fetchLimit := .Options.IntOr "fetch-limit" 20 }}
+      {{ $displayLimit := .Options.IntOr "display-limit" 10 }}
+      {{ $collapseAfter := .Options.IntOr "collapse-after" 5 }}
+
+      {{ $urlBookmarks := printf "http://%s/api/v1/bookmarks?limit=%d" "${KARAKEEP_URL}" $fetchLimit }}
+      {{ $respBookmarks := newRequest $urlBookmarks
+        | withHeader "Authorization" (printf "Bearer %s" "${KARAKEEP_API_KEY}")
+        | withHeader "Accept" "application/json"
+        | getResponse }}
+      {{ $bookmarks := $respBookmarks.JSON.Array "bookmarks" }}
+
+      {{ if eq (len $bookmarks) 0 }}
+        <div class="dy-empty">no bookmarks</div>
+      {{ else }}
+        <ul class="articles articles-byline list collapsible-container"
+            data-collapse-after="{{ $collapseAfter }}"
+            {{ if eq $mode "random" }}data-display-limit="{{ $displayLimit }}" data-shuffle="true"{{ end }}>
+          {{ range $i, $b := $bookmarks }}
+            {{ $content := $b.Get "content" }}
+            {{ $title := $content.String "title" }}
+            {{ $url := $content.String "url" }}
+            {{ $createdAt := $b.String "createdAt" }}
+
+            {{ $domain := $url }}
+            {{ $domain = trimPrefix "https://" $domain }}
+            {{ $domain = trimPrefix "http://" $domain }}
+            {{ $domain = trimPrefix "www." $domain }}
+            {{ $domain = findMatch "^[^/]+" $domain }}
+
+            {{ $dateFormatted := "" }}
+            {{ if $createdAt }}
+              {{ $parsedDate := parseTime "2006-01-02T15:04:05.000Z" $createdAt }}
+              {{ $dateFormatted = $parsedDate.Format "Jan 2, 2006" }}
+            {{ end }}
+
+            <li class="art-byline" onclick="window.open('{{ $url }}', '_blank')">
+              <div class="art-meta-top">
+                <span class="art-src">{{ $domain }}</span>
+                {{ if $dateFormatted }}
+                  <span class="art-dot">·</span>
+                  <span class="art-ago">{{ $dateFormatted }}</span>
+                {{ end }}
+              </div>
+              <div class="art-title">{{ $title }}</div>
+            </li>
+          {{ end }}
+        </ul>
+      {{ end }}

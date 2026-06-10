@@ -1,0 +1,40 @@
+# ── CONFIGURATION ────────────────────────────────────────────────────────────
+# Replace the URLs and icons below with your own bookmarks.
+# Icons can be local paths (assets/icons/bookmarks/name.svg) or absolute URLs.
+# Set same-tab: false if you want bookmarks to open in a new tab.
+# ─────────────────────────────────────────────────────────────────────────────
+- type: bookmarks
+  groups:
+      - same-tab: true
+        hide-arrow: true
+        links:
+            - title: ""
+              url: https://mail.google.com/mail/u/0/
+              icon: assets/icons/bookmarks/gmail.svg
+            - title: ""
+              url: https://www.protonmail.com
+              icon: assets/icons/bookmarks/proton-mail.svg
+            - title: ""
+              url: https://dropout.tv
+              icon: assets/icons/bookmarks/dropout.svg
+            - title: ""
+              url: https://news.ycombinator.com/
+              icon: assets/icons/bookmarks/hacker-news.svg
+            - title: ""
+              url: https://www.youtube.com/
+              icon: assets/icons/bookmarks/youtube.svg
+            - title: ""
+              url: https://www.resetera.com/
+              icon: https://www.resetera.com/favicon.ico
+            - title: ""
+              url: https://nebula.tv
+              icon: assets/icons/bookmarks/nebula.svg
+            - title: ""
+              url: https://www.reddit.com/
+              icon: assets/icons/bookmarks/reddit.svg
+            - title: ""
+              url: https://YOUR_UNRAID_HOST/Docker
+              icon: assets/icons/bookmarks/unraid.svg
+            - title: ""
+              url: https://gemini.google.com/app
+              icon: assets/icons/bookmarks/google-gemini.svg

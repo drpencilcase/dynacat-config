@@ -1,0 +1,162 @@
+# ── CONFIGURATION ────────────────────────────────────────────────────────────
+# Set this variable in your .env file:
+#
+#   API_PROXY_URL   Base URL of your custom API proxy
+#                   e.g. https://api-proxy.example.com
+#
+# The proxy must expose:
+#   GET /ticktick/tasks    → JSON array of task objects
+#   GET /ticktick/projects → JSON array of project objects
+#   POST /ticktick/complete/{projectId}/{taskId}
+#
+# Options (edit the options block below):
+#   max-tasks-per-project   Max tasks shown per project card
+#   max-title-length        Truncate task titles longer than this
+#
+#   tone-{projectId}        Map a TickTick project to a Rosé Pine colour tone.
+#                           Available tones: iris foam love gold rose pine
+#                           Find your project IDs by calling GET /ticktick/projects
+#                           and reading the "id" field of each project.
+#                           Any unmapped project defaults to "iris".
+# ─────────────────────────────────────────────────────────────────────────────
+- type: custom-api
+  title: tasks
+  cache: 5m
+  method: GET
+  url: ${API_PROXY_URL}/ticktick/tasks
+  subrequests:
+      projects:
+          url: ${API_PROXY_URL}/ticktick/projects
+  options:
+      max-tasks-per-project: 10
+      max-title-length: 80
+      # tone-{projectId}: colourTone
+      # Example — replace with your own project IDs from GET /ticktick/projects:
+      # tone-abc123: pine
+      # tone-def456: iris
+      # tone-ghi789: foam
+  template: |
+      {{ $tasks := .JSON.Array "" }}
+      {{ $projects := (.Subrequest "projects").JSON.Array "" }}
+      {{ $maxTasksPerProject := .Options.IntOr "max-tasks-per-project" 10 }}
+      {{ $maxTitleLength := .Options.IntOr "max-title-length" 80 }}
+
+      {{ $now := now }}
+      {{ $todayStr := $now.Format "2006-01-02" }}
+
+      {{/* Count totals across all tasks with non-empty titles */}}
+      {{ $totalTasks := 0 }}
+      {{ $overdue := 0 }}
+      {{ $todayCount := 0 }}
+      {{ range $task := $tasks }}
+        {{ $title := $task.String "title" }}
+        {{ if $title }}
+          {{ $totalTasks = add $totalTasks 1 }}
+          {{ $dueRaw := $task.String "dueDate" }}
+          {{ if $dueRaw }}
+            {{ $due := slice $dueRaw 0 10 }}
+            {{ if lt $due $todayStr }}{{ $overdue = add $overdue 1 }}{{ end }}
+            {{ if eq $due $todayStr }}{{ $todayCount = add $todayCount 1 }}{{ end }}
+          {{ end }}
+        {{ end }}
+      {{ end }}
+
+      {{ if eq $totalTasks 0 }}
+        <div class="dy-empty">no open tasks</div>
+      {{ else }}
+        <div class="dy-stat-row">
+          <div><b>{{ $totalTasks }}</b><span>open</span></div>
+          <div class="dy-stat-dot"></div>
+          <div class="{{ if eq $overdue 0 }}is-zero{{ else }}is-overdue{{ end }}">
+            <b>{{ $overdue }}</b><span>overdue</span>
+          </div>
+          <div class="dy-stat-dot"></div>
+          <div class="{{ if eq $todayCount 0 }}is-zero{{ else }}is-today{{ end }}">
+            <b>{{ $todayCount }}</b><span>today</span>
+          </div>
+        </div>
+
+        <div class="task-cards-stack">
+          {{ range $project := $projects }}
+            {{ $projectId := $project.String "id" }}
+            {{ $projectName := $project.String "name" }}
+
+            {{ $projectTasks := 0 }}
+            {{ range $task := $tasks }}
+              {{ if and (eq ($task.String "projectId") $projectId) ($task.String "title") }}
+                {{ $projectTasks = add $projectTasks 1 }}
+              {{ end }}
+            {{ end }}
+
+            {{ if gt $projectTasks 0 }}
+              {{ $toneKey := print "tone-" $projectId }}
+              {{ $tone := $.Options.StringOr $toneKey "iris" }}
+
+              <div class="task-card" data-tone="{{ $tone }}">
+                <div class="task-card-header">
+                  <span class="task-card-name">{{ $projectName }}</span>
+                  <span class="task-card-n">{{ $projectTasks }}</span>
+                </div>
+                <ul class="task-card-list">
+                  {{ $shown := 0 }}
+                  {{ range $task := $tasks }}
+                    {{ if eq ($task.String "projectId") $projectId }}
+                      {{ $title := $task.String "title" }}
+                      {{ if and $title (lt $shown $maxTasksPerProject) }}
+                        {{ $shown = add $shown 1 }}
+                        {{ $dueRaw := $task.String "dueDate" }}
+
+                        {{ $dueClass := "" }}
+                        {{ $dueText := "" }}
+                        {{ if $dueRaw }}
+                          {{ $due := slice $dueRaw 0 10 }}
+                          {{ if ge $due "2000-01-01" }}
+                            {{ $dueTime := parseTime "2006-01-02" $due }}
+                            {{ $dueDay := add (mul $dueTime.Year 365) $dueTime.YearDay }}
+                            {{ $nowDay := add (mul $now.Year 365) $now.YearDay }}
+                            {{ $days := sub $dueDay $nowDay }}
+                            {{ if lt $days 0 }}
+                              {{ $dueClass = "is-overdue" }}
+                              {{ $dueText = printf "overdue %dd" (sub 0 $days) }}
+                            {{ else if eq $days 0 }}
+                              {{ $dueClass = "is-today" }}
+                              {{ $dueText = "today" }}
+                            {{ else if eq $days 1 }}
+                              {{ $dueClass = "is-soon" }}
+                              {{ $dueText = "tomorrow" }}
+                            {{ else if lt $days 14 }}
+                              {{ $dueClass = "is-soon" }}
+                              {{ $dueText = printf "in %d days" $days }}
+                            {{ else }}
+                              {{ $dueClass = "is-future" }}
+                              {{ $dueText = printf "in %d days" $days }}
+                            {{ end }}
+                          {{ end }}
+                        {{ end }}
+
+                        {{ $displayTitle := $title }}
+                        {{ if gt (len $title) $maxTitleLength }}
+                          {{ $displayTitle = print (slice $title 0 $maxTitleLength) "…" }}
+                        {{ end }}
+
+                        <li>
+                          <div class="task-row">
+                            <span class="task-check" data-tone="{{ $tone }}" data-task-id="{{ $task.String "id" }}" data-project-id="{{ $projectId }}"
+                                  onclick="var s=this,li=s.closest('li');s.classList.toggle('is-checked');li.classList.toggle('is-completed');if(s.classList.contains('is-checked')){fetch('${API_PROXY_URL}/ticktick/complete/'+s.dataset.projectId+'/'+s.dataset.taskId,{method:'POST'}).catch(function(){s.classList.remove('is-checked');li.classList.remove('is-completed')})}"></span>
+                            <div class="task-row-body">
+                              <div class="task-card-title">{{ $displayTitle }}</div>
+                              {{ if $dueText }}
+                                <span class="dy-due-chip {{ $dueClass }}">{{ $dueText }}</span>
+                              {{ end }}
+                            </div>
+                          </div>
+                        </li>
+                      {{ end }}
+                    {{ end }}
+                  {{ end }}
+                </ul>
+              </div>
+            {{ end }}
+          {{ end }}
+        </div>
+      {{ end }}

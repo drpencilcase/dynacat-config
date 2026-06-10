@@ -1,0 +1,150 @@
+# ── CONFIGURATION ────────────────────────────────────────────────────────────
+# Set this variable in your .env file:
+#
+#   API_PROXY_URL   Base URL of your custom API proxy
+#                   e.g. https://api-proxy.example.com
+#
+# The proxy must expose GET /deliveries returning the Parcel app JSON format.
+# See config/widgets/PARCEL_README.md for proxy setup instructions.
+#
+# Options (edit the options block below):
+#   max-deliveries          Max number of parcels shown (default 8)
+#   max-description-length  Truncate description text longer than this
+# ─────────────────────────────────────────────────────────────────────────────
+- type: custom-api
+  title: parcel deliveries
+  cache: 5m
+  update-interval: 5m
+  method: GET
+  url: ${API_PROXY_URL}/deliveries
+  options:
+      max-deliveries: 8
+      max-description-length: 60
+  template: |
+      {{ $success := .JSON.Bool "success" }}
+      {{ if not $success }}
+        <div class="color-negative size-h4">Error: {{ .JSON.String "error_message" }}</div>
+      {{ else }}
+        {{ $deliveries := .JSON.Array "deliveries" }}
+        {{ $maxDeliveries := .Options.IntOr "max-deliveries" 8 }}
+        {{ $maxDescLength := .Options.IntOr "max-description-length" 60 }}
+        {{ $now := now }}
+        {{ $todayStr := $now.Format "2006-01-02" }}
+
+        {{/* Hide widget shell when empty */}}
+        {{ if eq (len $deliveries) 0 }}
+          <div class="dy-parcel-empty"></div>
+        {{ else }}
+          <div class="parcel-stack">
+            {{ $shown := 0 }}
+            {{ range $d := $deliveries }}
+              {{ if lt $shown $maxDeliveries }}
+                {{ $shown = add $shown 1 }}
+                {{ $description := $d.String "description" }}
+                {{ $trackingNumber := $d.String "tracking_number" }}
+                {{ $carrierCode := $d.String "carrier_code" }}
+                {{ $statusCode := $d.Int "status_code" }}
+                {{ $dateExpected := $d.String "date_expected" }}
+                {{ $events := $d.Array "events" }}
+
+                {{/* status text */}}
+                {{ $statusText := "info received" }}
+                {{ if eq $statusCode 0 }}{{ $statusText = "delivered" }}
+                {{ else if eq $statusCode 1 }}{{ $statusText = "frozen" }}
+                {{ else if eq $statusCode 2 }}{{ $statusText = "in transit" }}
+                {{ else if eq $statusCode 3 }}{{ $statusText = "ready for pickup" }}
+                {{ else if eq $statusCode 4 }}{{ $statusText = "out for delivery" }}
+                {{ else if eq $statusCode 5 }}{{ $statusText = "not found" }}
+                {{ else if eq $statusCode 6 }}{{ $statusText = "failed delivery" }}
+                {{ else if eq $statusCode 7 }}{{ $statusText = "exception" }}
+                {{ end }}
+
+                {{/* Date, ETA, and tone */}}
+                {{ $isToday := false }}
+                {{ $etaText := "" }}
+                {{ if $dateExpected }}
+                  {{ $dueDate := slice $dateExpected 0 10 }}
+                  {{ if eq $dueDate $todayStr }}
+                    {{ $isToday = true }}
+                    {{ $etaText = "today" }}
+                  {{ else }}
+                    {{ $parsedDue := parseTime "2006-01-02" $dueDate }}
+                    {{ if gt $parsedDue.Year 1 }}
+                      {{ if lt $dueDate $todayStr }}
+                        {{ $absDays := sub $now.YearDay $parsedDue.YearDay }}
+                        {{ if ne $now.Year $parsedDue.Year }}{{ $absDays = add $absDays 365 }}{{ end }}
+                        {{ if gt $absDays 0 }}{{ $etaText = printf "overdue %dd" $absDays }}
+                        {{ else }}{{ $etaText = "overdue" }}{{ end }}
+                      {{ else }}
+                        {{ $futureDays := sub $parsedDue.YearDay $now.YearDay }}
+                        {{ if ne $parsedDue.Year $now.Year }}{{ $futureDays = add $futureDays 365 }}{{ end }}
+                        {{ if eq $futureDays 1 }}{{ $etaText = "tomorrow" }}
+                        {{ else if gt $futureDays 0 }}{{ $etaText = printf "in %d days" $futureDays }}{{ end }}
+                      {{ end }}
+                    {{ end }}
+                  {{ end }}
+                {{ end }}
+                {{ $tone := "foam" }}
+                {{ if or (eq $statusCode 5) (or (eq $statusCode 6) (eq $statusCode 7)) }}{{ $tone = "love" }}
+                {{ else if $isToday }}{{ $tone = "gold" }}
+                {{ else if eq $statusCode 2 }}{{ $tone = "iris" }}{{ end }}
+                {{ $statusColor := "var(--rose-foam)" }}
+                {{ if eq $tone "love" }}{{ $statusColor = "var(--rose-love)" }}
+                {{ else if eq $tone "gold" }}{{ $statusColor = "var(--rose-gold)" }}
+                {{ else if eq $tone "iris" }}{{ $statusColor = "var(--rose-iris)" }}{{ end }}
+
+                {{/* Latest event */}}
+                {{ $latestEvent := "" }}
+                {{ $latestLocation := "" }}
+                {{ if gt (len $events) 0 }}
+                  {{ $firstEvent := index $events 0 }}
+                  {{ $latestEvent = $firstEvent.String "event" }}
+                  {{ $latestLocation = $firstEvent.String "location" }}
+                {{ end }}
+
+                {{/* Truncate description */}}
+                {{ $displayDesc := $description }}
+                {{ if gt (len $description) $maxDescLength }}
+                  {{ $displayDesc = print (slice $description 0 $maxDescLength) "…" }}
+                {{ end }}
+
+                <article class="parcel-card"
+                         data-tone="{{ $tone }}"
+                         title="tracking · {{ $trackingNumber }}"
+                         style="--status-color: {{ $statusColor | safeCSS }};">
+                  <div class="parcel-title">{{ $displayDesc }}</div>
+                  <div class="parcel-status-row">
+                    <span class="parcel-status-dot"></span>
+                    <span class="parcel-status">{{ $statusText }}</span>
+                    {{ if $etaText }}
+                      <span class="parcel-sep">·</span>
+                      <span class="parcel-eta due-{{ $tone }}">{{ $etaText }}</span>
+                    {{ end }}
+                  </div>
+                  {{ if $latestEvent }}
+                    <div class="parcel-event">
+                      <span class="parcel-event-text">{{ $latestEvent }}</span>
+                      {{ if $latestLocation }}
+                        <span class="parcel-event-sep"> — </span>
+                        <span class="parcel-event-loc">{{ $latestLocation }}</span>
+                      {{ end }}
+                    </div>
+                  {{ end }}
+                  <button class="parcel-carrier"
+                          aria-label="copy tracking number {{ $trackingNumber }}"
+                          title="click to copy {{ $trackingNumber }}"
+                          onclick="event.stopPropagation(); const b=this; const lbl=b.querySelector('.parcel-carrier-label'); const icn=b.querySelector('.parcel-carrier-icon'); navigator.clipboard.writeText('{{ $trackingNumber }}').then(()=>{ const old=lbl.textContent; lbl.textContent='copied'; b.classList.add('is-copied'); icn.innerHTML='<svg width=&quot;9&quot; height=&quot;9&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;3&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><polyline points=&quot;20 6 9 17 4 12&quot;/></svg>'; setTimeout(()=>{ lbl.textContent=old; b.classList.remove('is-copied'); icn.innerHTML='<svg width=&quot;9&quot; height=&quot;9&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;><rect x=&quot;9&quot; y=&quot;9&quot; width=&quot;13&quot; height=&quot;13&quot; rx=&quot;2&quot; ry=&quot;2&quot;/><path d=&quot;M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1&quot;/></svg>'; }, 1400); }).catch(()=>{});">
+                    <span class="parcel-carrier-label">{{ $carrierCode }}</span>
+                    <span class="parcel-carrier-icon" aria-hidden="true">
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                      </svg>
+                    </span>
+                  </button>
+                </article>
+              {{ end }}
+            {{ end }}
+          </div>
+        {{ end }}
+      {{ end }}

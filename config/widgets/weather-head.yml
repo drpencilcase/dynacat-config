@@ -1,0 +1,206 @@
+# ── CONFIGURATION ────────────────────────────────────────────────────────────
+# Set these variables in your .env file:
+#
+#   WEATHER_PROXY_URL   Base URL of the caching proxy that wraps Tomorrow.io
+#                       (nowcast + 24h forecast) and Open-Meteo (7-day).
+#                       e.g. http://192.168.1.10:8082
+#                       See .tmp/WEATHER_SETUP_COMPLETE.md for setup.
+#
+#   DASHBOARD_NAME      Label shown in the top-left corner of the weather strip
+#                       (e.g. "Mayolab", "Home", your city name, etc.)
+#
+# The widget uses Celsius by default. Temperature values come directly from
+# the proxy; change the proxy's unit config to switch to Fahrenheit.
+# ─────────────────────────────────────────────────────────────────────────────
+- type: custom-api
+  title: ""
+  cache: 30m
+  url: ${WEATHER_PROXY_URL}/tomorrow/forecast/24h
+  template: |
+      <link rel="stylesheet" href="/assets/fontawesome.min.css">
+
+      {{/* ---- nowcast ---- */}}
+      {{ $rt    := newRequest "${WEATHER_PROXY_URL}/tomorrow/nowcast" | getResponse }}
+      {{ $rtNow := index ($rt.JSON.Array "timelines.minutely") 0 }}
+      {{ $cur   := $rtNow.Float "values.temperature" }}
+      {{ $feels := $rtNow.Float "values.temperatureApparent" }}
+      {{ $hum   := $rtNow.Float "values.humidity" }}
+      {{ $code  := $rtNow.Int   "values.weatherCode" }}
+
+      {{/* ---- open-meteo 7-day ---- */}}
+      {{ $om           := newRequest "${WEATHER_PROXY_URL}/openmeteo/forecast" | getResponse }}
+      {{ $omTimes      := $om.JSON.Array "daily.time" }}
+      {{ $omMaxT       := $om.JSON.Array "daily.temperature_2m_max" }}
+      {{ $omMinT       := $om.JSON.Array "daily.temperature_2m_min" }}
+      {{ $omPrecipProb := $om.JSON.Array "daily.precipitation_probability_max" }}
+      {{ $omPrecipSum  := $om.JSON.Array "daily.precipitation_sum" }}
+      {{ $omCodes      := $om.JSON.Array "daily.weathercode" }}
+
+      {{/* ---- today summary ---- */}}
+      {{ $hi   := (index $omMaxT 0).Float "" }}
+      {{ $lo   := (index $omMinT 0).Float "" }}
+      {{ $rain := (index $omPrecipSum 0).Float "" }}
+
+      {{/* ---- hourly 24h ---- */}}
+      {{ $hours := .JSON.Array "timelines.hourly" }}
+      {{ $tmin := 999.0 }}{{ $tmax := -999.0 }}{{ $htimes := "" }}{{ $htemps := "" }}{{ $hprecip := "" }}{{ $hrain := "" }}
+      {{ range $i, $h := $hours }}{{ if lt $i 24 }}
+        {{ $t := $h.Float "values.temperature" }}
+        {{ if lt $t $tmin }}{{ $tmin = $t }}{{ end }}
+        {{ if gt $t $tmax }}{{ $tmax = $t }}{{ end }}
+        {{ $ri  := $h.Float "values.rainAccumulation" }}
+        {{ $p   := $h.Float "values.precipitationProbability" }}
+        {{ $tf  := (offsetNow (printf "%dh" $i)).Format "3pm" }}
+        {{ if eq $i 0 }}{{ $htimes = $tf }}{{ $htemps = printf "%.0f" $t }}{{ $hprecip = printf "%.0f" $p }}{{ $hrain = printf "%.1f" $ri }}{{ else }}{{ $htimes = printf "%s|%s" $htimes $tf }}{{ $htemps = printf "%s|%.0f" $htemps $t }}{{ $hprecip = printf "%s|%.0f" $hprecip $p }}{{ $hrain = printf "%s|%.1f" $hrain $ri }}{{ end }}
+      {{ end }}{{ end }}
+      {{ $trange := sub $tmax $tmin }}{{ if lt $trange 1.0 }}{{ $trange = 1.0 }}{{ end }}
+
+      {{/* ---- precipitation alert ---- */}}
+      {{ $alertType := "" }}{{ $alertIdx := 0 }}{{ $alertProb := 0.0 }}
+      {{ $h0prob := (index $hours 0).Float "values.precipitationProbability" }}
+      {{ if gt $h0prob 30.0 }}
+        {{ $alertType = "stops" }}{{ $alertProb = $h0prob }}
+        {{ range $i, $h := $hours }}{{ if and (gt $i 0) (lt $i 24) (eq $alertIdx 0) }}
+          {{ $p := $h.Float "values.precipitationProbability" }}
+          {{ if le $p 30.0 }}{{ $alertIdx = $i }}{{ end }}
+        {{ end }}{{ end }}
+        {{ if eq $alertIdx 0 }}{{ $alertType = "" }}{{ end }}
+      {{ else }}
+        {{ range $i, $h := $hours }}{{ if and (gt $i 0) (lt $i 24) (eq $alertIdx 0) }}
+          {{ $p := $h.Float "values.precipitationProbability" }}
+          {{ if gt $p 30.0 }}{{ $alertType = "starts" }}{{ $alertIdx = $i }}{{ $alertProb = $p }}{{ end }}
+        {{ end }}{{ end }}
+      {{ end }}
+
+      {{/* ---- pre-compute alert display strings ---- */}}
+      {{ $alertTimeStr := "" }}{{ $alertLabel := "" }}{{ $alertClass := "is-moderate" }}
+      {{ if ne $alertType "" }}
+        {{ $alertTimeStr = printf "in %dh" $alertIdx }}
+        {{ if eq $alertIdx 1 }}{{ $alertTimeStr = "in ~60min" }}{{ end }}
+        {{ if le $alertProb 50.0 }}{{ $alertLabel = "showers" }}{{ $alertClass = "is-light" }}
+        {{ else if gt $alertProb 70.0 }}{{ $alertLabel = "heavy rain" }}{{ $alertClass = "is-heavy" }}
+        {{ else }}{{ $alertLabel = "rain" }}{{ end }}
+        {{ if eq $alertType "stops" }}{{ $alertLabel = "stops" }}{{ end }}
+      {{ end }}
+
+      {{/* ---- sparkline tick times ---- */}}
+      {{ $tick0  := now }}
+      {{ $tick6  := offsetNow "6h" }}
+      {{ $tick12 := offsetNow "12h" }}
+      {{ $tick18 := offsetNow "18h" }}
+      {{ $tick23 := offsetNow "23h" }}
+
+      {{/* ---- condition -> icon / colour / label ---- */}}
+      {{ $cIcon := "fa-cloud" }}{{ $cColor := "var(--rose-subtle)" }}{{ $cName := "—" }}
+      {{ if eq $code 1000 1100 }}{{ $cIcon = "fa-sun" }}{{ $cColor = "var(--rose-gold)" }}{{ $cName = "clear" }}
+      {{ else if eq $code 1101 1102 }}{{ $cIcon = "fa-cloud-sun" }}{{ $cColor = "var(--rose-gold)" }}{{ $cName = "partly cloudy" }}
+      {{ else if eq $code 1001 }}{{ $cIcon = "fa-cloud" }}{{ $cColor = "var(--rose-subtle)" }}{{ $cName = "cloudy" }}
+      {{ else if eq $code 2000 2100 }}{{ $cIcon = "fa-smog" }}{{ $cColor = "var(--rose-subtle)" }}{{ $cName = "fog" }}
+      {{ else if eq $code 4000 4200 }}{{ $cIcon = "fa-cloud-rain" }}{{ $cColor = "var(--rose-foam)" }}{{ $cName = "light rain" }}
+      {{ else if eq $code 4001 4201 }}{{ $cIcon = "fa-cloud-showers-heavy" }}{{ $cColor = "var(--rose-foam)" }}{{ $cName = "rain" }}
+      {{ else if eq $code 5000 5001 5100 5101 }}{{ $cIcon = "fa-snowflake" }}{{ $cColor = "var(--rose-foam)" }}{{ $cName = "snow" }}
+      {{ else if eq $code 6000 6001 6200 6201 }}{{ $cIcon = "fa-snowflake" }}{{ $cColor = "var(--rose-foam)" }}{{ $cName = "freezing rain" }}
+      {{ else if eq $code 7000 7101 7102 }}{{ $cIcon = "fa-cloud-rain" }}{{ $cColor = "var(--rose-foam)" }}{{ $cName = "ice pellets" }}
+      {{ else if eq $code 8000 }}{{ $cIcon = "fa-bolt" }}{{ $cColor = "var(--rose-gold)" }}{{ $cName = "thunderstorm" }}
+      {{ end }}
+
+      <div class="dy-wx-h-header">
+        <span class="dy-wx-h-header-brand">${DASHBOARD_NAME}</span>
+        <span class="dy-wx-h-header-meta">· {{ now.Format "Mon 2 Jan" }} · {{ now.Format "15:04" }}</span>
+      </div>
+
+      <div class="dy-wx-h">
+
+        {{/* ===== hero: 3-column (icon | temp+feels | cond+alert) ===== */}}
+        <div class="dy-wx-h-hero">
+          <i class="fas {{ $cIcon }} dy-wx-h-cond-icon" style="color: {{ $cColor | safeCSS }}"></i>
+          <div class="dy-wx-h-hero-col">
+            <div class="dy-wx-h-temp">{{ printf "%.0f" $cur }}<span>°c</span></div>
+            <div class="dy-wx-h-feels">feels {{ printf "%.0f" $feels }}°</div>
+          </div>
+          <div class="dy-wx-h-hero-col">
+            <div class="dy-wx-h-cond-name">{{ $cName }}</div>
+            {{ if ne $alertType "" }}<span class="dy-wx-h-alert {{ $alertClass }}"><i class="fas fa-droplet"></i> {{ $alertLabel }} {{ $alertTimeStr }}</span>{{ end }}
+          </div>
+        </div>
+
+        <div class="dy-wx-h-sep"></div>
+
+        {{/* ===== meta stats — icons ===== */}}
+        <div class="dy-wx-h-meta">
+          <div><i class="fas fa-droplet dy-wx-h-meta-icon"></i><b>{{ printf "%.0f" $hum }}<i>%</i></b></div>
+          <div><i class="fas fa-arrow-up dy-wx-h-meta-icon"></i><b>{{ printf "%.0f" $hi }}<i>°</i></b></div>
+          <div><i class="fas fa-arrow-down dy-wx-h-meta-icon"></i><b>{{ printf "%.0f" $lo }}<i>°</i></b></div>
+          <div><i class="fas fa-cloud-rain dy-wx-h-meta-icon"></i><b>{{ printf "%.1f" $rain }}<i>mm</i></b></div>
+        </div>
+
+        <div class="dy-wx-h-sep"></div>
+
+        {{/* ===== 24h sparkline — overlaid layers, 26px viewBox ===== */}}
+        <div class="dy-wx-h-spark-section">
+          <div class="dy-wx-h-spark-wrap" onmouseleave="this.querySelector('.dy-wx-h-tooltip').style.display='none';this.querySelector('.dy-wx-h-spark-cursor').setAttribute('visibility','hidden')">
+            <svg class="dy-wx-h-spark" viewBox="0 0 240 26" preserveAspectRatio="none" aria-hidden="true" data-htimes="{{ $htimes }}" data-htemps="{{ $htemps }}" data-hprecip="{{ $hprecip }}" data-hrain="{{ $hrain }}" onmousemove="var w=this.closest('.dy-wx-h-spark-wrap'),r=this.getBoundingClientRect(),rx=Math.max(0,Math.min(1,(event.clientX-r.left)/r.width)),idx=Math.round(rx*23),cx=Math.round(rx*240),tip=w.querySelector('.dy-wx-h-tooltip'),cur=this.querySelector('.dy-wx-h-spark-cursor');cur.setAttribute('x1',cx);cur.setAttribute('x2',cx);cur.removeAttribute('visibility');var tm=this.dataset.htimes.split('|'),te=this.dataset.htemps.split('|'),ra=this.dataset.hrain.split('|'),pr=this.dataset.hprecip.split('|'),rv=parseFloat(ra[idx]),txt=tm[idx]+': '+te[idx]+'°';if(rv>0)txt+=' - '+rv.toFixed(1)+'mm('+pr[idx]+'%)';tip.textContent=txt;tip.style.display='block';var wr=w.getBoundingClientRect(),lx=event.clientX-wr.left-tip.offsetWidth/2;tip.style.left=Math.max(0,Math.min(wr.width-tip.offsetWidth,lx))+'px'">
+              <defs><linearGradient id="rosePineTempGradH" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="var(--rose-gold)" stop-opacity="0.25"/><stop offset="100%" stop-color="var(--rose-gold)" stop-opacity="0"/></linearGradient></defs>
+              {{/* layer 1 (bottom): gradient fill */}}
+              <polygon class="dy-wx-h-spark-fill" style="fill:url(#rosePineTempGradH);stroke:none" points="0,26 {{ range $i, $h := $hours }}{{ if lt $i 24 }}{{ $t := $h.Float "values.temperature" }}{{ $x := div (mul $i 240) 23 }}{{ $y := sub 23.0 (div (mul (sub $t $tmin) 20.0) $trange) }}{{ printf "%d,%.1f " $x $y }}{{ end }}{{ end }}240,26"/>
+              {{/* layer 2: precipitation bars */}}
+              {{ range $i, $h := $hours }}{{ if lt $i 24 }}{{ $ri := $h.Float "values.rainAccumulation" }}{{ $barH := add (mul $ri 4.0) 1.0 }}{{ $barY := sub 26.0 $barH }}{{ $barX := mul $i 10 }}<rect class="dy-wx-h-spark-bar{{ if gt $ri 0.0 }} is-wet{{ end }}" x="{{ $barX }}" y="{{ printf "%.1f" $barY }}" width="9" height="{{ printf "%.1f" $barH }}" rx="1" ry="1"/>{{ end }}{{ end }}
+              {{/* layer 3 (front): temperature line */}}
+              <polyline class="dy-wx-h-spark-line" points="{{ range $i, $h := $hours }}{{ if lt $i 24 }}{{ $t := $h.Float "values.temperature" }}{{ $x := div (mul $i 240) 23 }}{{ $y := sub 23.0 (div (mul (sub $t $tmin) 20.0) $trange) }}{{ printf "%d,%.1f " $x $y }}{{ end }}{{ end }}"/>
+              <line class="dy-wx-h-spark-cursor" x1="0" y1="0" x2="0" y2="26" visibility="hidden"/>
+            </svg>
+            <div class="dy-wx-h-tooltip"></div>
+          </div>
+          <div class="dy-wx-h-ticks">
+            <span class="dy-wx-h-tick" style="left:0%">{{ $tick0.Format "3pm" }}</span>
+            <span class="dy-wx-h-tick" style="left:26.1%">{{ $tick6.Format "3pm" }}</span>
+            <span class="dy-wx-h-tick" style="left:52.2%">{{ $tick12.Format "3pm" }}</span>
+            <span class="dy-wx-h-tick" style="left:78.3%">{{ $tick18.Format "3pm" }}</span>
+            <span class="dy-wx-h-tick" style="left:100%">{{ $tick23.Format "3pm" }}</span>
+          </div>
+        </div>
+
+        <div class="dy-wx-h-sep"></div>
+
+        {{/* ===== 7-day forecast ===== */}}
+        <div class="dy-wx-h-forecast">
+          {{ range $i, $t := $omTimes }}{{ if and (gt $i 0) (lt $i 8) }}
+            {{ $ds    := $t.String "" }}
+            {{ $pt    := parseTime "DateOnly" $ds }}
+            {{ $dow   := $pt.Format "Mon" }}
+            {{ $isWeekend := or (eq $dow "Sat") (eq $dow "Sun") }}
+
+            {{ $dhi   := (index $omMaxT $i).Float "" }}
+            {{ $dlo   := (index $omMinT $i).Float "" }}
+            {{ $pop   := (index $omPrecipProb $i).Float "" }}
+            {{ $dcode := (index $omCodes $i).Int "" }}
+
+            {{ $dIcon := "fa-cloud" }}{{ $dColor := "var(--rose-subtle)" }}
+            {{ if eq $dcode 0 1 }}{{ $dIcon = "fa-sun" }}{{ $dColor = "var(--rose-gold)" }}
+            {{ else if eq $dcode 2 }}{{ $dIcon = "fa-cloud-sun" }}{{ $dColor = "var(--rose-gold)" }}
+            {{ else if eq $dcode 3 }}{{ $dIcon = "fa-cloud" }}{{ $dColor = "var(--rose-subtle)" }}
+            {{ else if eq $dcode 45 48 }}{{ $dIcon = "fa-smog" }}{{ $dColor = "var(--rose-subtle)" }}
+            {{ else if eq $dcode 51 53 55 56 57 }}{{ $dIcon = "fa-cloud-rain" }}{{ $dColor = "var(--rose-foam)" }}
+            {{ else if eq $dcode 61 80 }}{{ $dIcon = "fa-cloud-rain" }}{{ $dColor = "var(--rose-foam)" }}
+            {{ else if eq $dcode 63 65 81 82 }}{{ $dIcon = "fa-cloud-showers-heavy" }}{{ $dColor = "var(--rose-foam)" }}
+            {{ else if eq $dcode 66 67 }}{{ $dIcon = "fa-snowflake" }}{{ $dColor = "var(--rose-foam)" }}
+            {{ else if eq $dcode 71 73 75 77 85 86 }}{{ $dIcon = "fa-snowflake" }}{{ $dColor = "var(--rose-foam)" }}
+            {{ else if eq $dcode 95 96 99 }}{{ $dIcon = "fa-bolt" }}{{ $dColor = "var(--rose-gold)" }}
+            {{ end }}
+
+            <div class="dy-wx-h-day{{ if $isWeekend }} is-weekend{{ end }}">
+              <div class="dy-wx-h-day-name">{{ $dow }}</div>
+              <i class="fas {{ $dIcon }} dy-wx-h-day-icon" style="color: {{ $dColor | safeCSS }}"></i>
+              <div class="dy-wx-h-day-temps">
+                <span class="dy-wx-h-day-hi">{{ printf "%.0f" $dhi }}°</span>
+                <span class="dy-wx-h-day-lo">{{ printf "%.0f" $dlo }}°</span>
+              </div>
+              <div class="dy-wx-h-day-precip{{ if ge $pop 50.0 }} is-wet{{ end }}">
+                <svg width="5" height="7" viewBox="0 0 6 8" aria-hidden="true"><path d="M3 0.5 C 0.8 3.4, 0.4 5.4, 3 7.5 C 5.6 5.4, 5.2 3.4, 3 0.5 Z" fill="currentColor"/></svg>
+                {{ printf "%.0f" $pop }}%
+              </div>
+            </div>
+          {{ end }}{{ end }}
+        </div>
+
+      </div>

@@ -1,0 +1,3031 @@
+/* ============================================================
+   DYNACAT — custom.css
+   Rosé Pine · Editorial · Calm dashboard aesthetic
+   ============================================================ */
+
+/* ============================================================
+   1. FONTS
+   ============================================================ */
+@import url("/assets/custom/fonts.css");
+
+/* ============================================================
+   2. DESIGN TOKENS — dark (Rosé Pine) default
+   ============================================================ */
+:root {
+    /* Base / neutrals */
+    --rose-base: #191724;
+    --rose-surface: #1f1d2e;
+    --rose-overlay: #26233a;
+    --rose-muted: #6e6a86;
+    --rose-subtle: #908caa;
+    --rose-text: #e0def4;
+    --rose-highlight-low: #21202e;
+    --rose-highlight-med: #403d52;
+    --rose-highlight-high: #524f67;
+
+    /* Accents */
+    --rose-love: #eb6f92;
+    --rose-gold: #f6c177;
+    --rose-rose: #ebbcba;
+    --rose-pine: #31748f;
+    --rose-foam: #9ccfd8;
+    --rose-iris: #c4a7e7;
+
+    /* Borders */
+    --border-soft: rgba(110, 106, 134, 0.18);
+    --border: rgba(110, 106, 134, 0.28);
+
+    /* Font roles */
+    --font-body: "Crimson Pro", "Iowan Old Style", Georgia, serif;
+    --font-display: "DM Serif Display", Georgia, serif;
+    --font-label: "Inter", system-ui, sans-serif;
+    --font-heading: "Inter", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* Dawn via OS preference */
+@media (prefers-color-scheme: light) {
+    :root {
+        --rose-base: #faf4ed;
+        --rose-surface: #fffaf3;
+        --rose-overlay: #f2e9e1;
+        --rose-muted: #9893a5;
+        --rose-subtle: #797593;
+        --rose-text: #575279;
+        --rose-highlight-low: #f4ede8;
+        --rose-highlight-med: #dfdad9;
+        --rose-highlight-high: #cecacd;
+        --rose-love: #b4637a;
+        --rose-gold: #ea9d34;
+        --rose-rose: #d7827e;
+        --rose-pine: #286983;
+        --rose-foam: #56949f;
+        --rose-iris: #907aa9;
+        --border-soft: rgba(152, 147, 165, 0.18);
+        --border: rgba(152, 147, 165, 0.28);
+    }
+}
+
+html[data-scheme="light"] {
+    --rose-base: #faf4ed;
+    --rose-surface: #fffaf3;
+    --rose-overlay: #f2e9e1;
+    --rose-muted: #9893a5;
+    --rose-subtle: #797593;
+    --rose-text: #575279;
+    --rose-highlight-low: #f4ede8;
+    --rose-highlight-med: #dfdad9;
+    --rose-highlight-high: #cecacd;
+    --rose-love: #b4637a;
+    --rose-gold: #ea9d34;
+    --rose-rose: #d7827e;
+    --rose-pine: #286983;
+    --rose-foam: #56949f;
+    --rose-iris: #907aa9;
+    --border-soft: rgba(152, 147, 165, 0.18);
+    --border: rgba(152, 147, 165, 0.28);
+}
+
+html[data-scheme="dark"] {
+    --rose-base: #191724;
+    --rose-surface: #1f1d2e;
+    --rose-overlay: #26233a;
+    --rose-muted: #6e6a86;
+    --rose-subtle: #908caa;
+    --rose-text: #e0def4;
+    --rose-highlight-low: #21202e;
+    --rose-highlight-med: #403d52;
+    --rose-highlight-high: #524f67;
+    --rose-love: #eb6f92;
+    --rose-gold: #f6c177;
+    --rose-rose: #ebbcba;
+    --rose-pine: #31748f;
+    --rose-foam: #9ccfd8;
+    --rose-iris: #c4a7e7;
+    --border-soft: rgba(110, 106, 134, 0.18);
+    --border: rgba(110, 106, 134, 0.28);
+}
+
+/* Tone tokens — applied via data-tone="iris|foam|love|gold|rose|pine" */
+[data-tone="iris"] {
+    --tone-color: var(--rose-iris);
+    --tone-bg: hsla(267, 22%, 57%, 0.1);
+    --tone-bd: hsla(267, 22%, 57%, 0.22);
+}
+[data-tone="foam"] {
+    --tone-color: var(--rose-foam);
+    --tone-bg: hsla(189, 30%, 48%, 0.08);
+    --tone-bd: hsla(189, 30%, 48%, 0.2);
+}
+[data-tone="love"] {
+    --tone-color: var(--rose-love);
+    --tone-bg: hsla(343, 35%, 55%, 0.1);
+    --tone-bd: hsla(343, 35%, 55%, 0.22);
+}
+[data-tone="gold"] {
+    --tone-color: var(--rose-gold);
+    --tone-bg: hsla(34, 80%, 50%, 0.1);
+    --tone-bd: hsla(34, 80%, 50%, 0.22);
+}
+[data-tone="rose"] {
+    --tone-color: var(--rose-rose);
+    --tone-bg: hsla(2, 56%, 67%, 0.1);
+    --tone-bd: hsla(2, 56%, 67%, 0.24);
+}
+[data-tone="pine"] {
+    --tone-color: var(--rose-pine);
+    --tone-bg: hsla(197, 49%, 38%, 0.12);
+    --tone-bd: hsla(197, 49%, 38%, 0.24);
+}
+
+/* ============================================================
+   3. BASE
+   ============================================================ */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-body) !important;
+    background: var(--rose-base) !important;
+    color: var(--rose-text) !important;
+    font-size: 14px !important;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Glance color utilities */
+.color-positive {
+    color: var(--rose-foam) !important;
+}
+.color-negative {
+    color: var(--rose-love) !important;
+}
+.color-subdue,
+.color-muted {
+    color: var(--rose-subtle) !important;
+}
+.color-primary {
+    color: var(--rose-iris) !important;
+}
+
+/* ============================================================
+   4. WIDGET SHELL
+   ============================================================ */
+.widget {
+    background: var(--rose-surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 0.85rem !important;
+    padding: 1.25rem 1.3rem !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease !important;
+}
+.widget:hover {
+    transform: translateY(-1px) !important;
+    border-color: var(--rose-iris) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+html[data-scheme="light"] .widget {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+html[data-scheme="light"] .widget:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.widget-content {
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+.widget-title,
+.widget-header {
+    font-family: var(--font-heading) !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.1em !important;
+    color: var(--rose-gold) !important;
+    padding-bottom: 0.65rem !important;
+    margin-bottom: 0.9rem !important;
+    border-bottom: 1px solid var(--border-soft) !important;
+}
+
+/* ============================================================
+   5. TONE CARD PRIMITIVE
+   ============================================================ */
+.tone-card {
+    background: var(--tone-bg, rgba(110, 106, 134, 0.05));
+    border: 1px solid var(--tone-bd, var(--border-soft));
+    border-radius: 0.6rem;
+    padding: 0.85rem 0.9rem;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+.tone-card:hover {
+    transform: translateY(-1px);
+    border-color: var(--tone-color, var(--rose-iris));
+    background: var(--rose-surface);
+}
+
+/* ============================================================
+   6. PROGRESS BARS
+   ============================================================ */
+/* Target Glance's default progress bar markup */
+.progress-bar {
+    height: 2px !important;
+    background: var(--rose-highlight-med) !important;
+    border-radius: 1px !important;
+    overflow: hidden !important;
+}
+.progress-bar > * {
+    height: 100% !important;
+    background: var(--rose-iris) !important;
+    border-radius: 1px !important;
+}
+
+/* ============================================================
+   7. PAGE LAYOUT
+   ============================================================ */
+.page-columns {
+    gap: 2.5rem !important;
+}
+.page-column-small {
+    max-width: 280px !important;
+    flex-basis: 280px !important;
+}
+
+/* ============================================================
+   8. SEARCH HEADER (command-palette pill)
+   ============================================================ */
+
+/* Strip card chrome from the widget shell */
+.widget-type-search {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0.25rem 0 !important;
+}
+.widget-type-search:hover {
+    transform: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+/* Light mode specificity fix: html[data-scheme="light"] .widget is (0,2,1),
+   so we need an equally specific rule that comes later to win */
+html[data-scheme="light"] .widget-type-search,
+html[data-scheme="light"] .widget-type-search:hover {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+.widget-type-search .widget-header {
+    display: none !important;
+}
+
+.widget-type-search .widget-content {
+    display: flex !important;
+    justify-content: center !important;
+}
+
+/* The pill — wraps icon + input + kbd */
+.widget-type-search .search {
+    background: var(--rose-surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 999px !important;
+    box-shadow: 0 8px 28px -16px rgba(0, 0, 0, 0.35) !important;
+    max-width: 560px !important;
+    width: 100% !important;
+    padding: 0.4rem 1rem !important;
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease !important;
+    /* override Glance's padding-inline-widget */
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+.widget-type-search .search:focus-within {
+    border-color: var(--rose-iris) !important;
+    box-shadow:
+        0 0 0 3px rgba(196, 167, 231, 0.18),
+        0 8px 28px -16px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Search icon */
+.search-icon {
+    stroke: var(--rose-subtle) !important;
+    width: 1rem !important;
+    height: 1rem !important;
+    flex-shrink: 0;
+}
+
+/* Input inside the pill — transparent, no own border */
+.search-input {
+    font-family: var(--font-body) !important;
+    font-size: 13.5px !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    color: var(--rose-text) !important;
+    outline: none !important;
+    box-shadow: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+}
+.search-input::placeholder {
+    color: var(--rose-subtle) !important;
+}
+
+/* Autocomplete dropdown — override Glance's "connected" no-top-border style */
+.search-autocomplete {
+    background: var(--rose-surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 0.6rem !important;
+    border-top-left-radius: 0.6rem !important;
+    border-top-right-radius: 0.6rem !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+    overflow: hidden !important;
+}
+
+.search-autocomplete-item {
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    color: var(--rose-text);
+    padding: 0.45rem 1rem;
+    cursor: pointer;
+    transition:
+        background 0.12s ease,
+        color 0.12s ease;
+}
+.search-autocomplete-item:hover,
+.search-autocomplete-item.selected {
+    background: var(--rose-highlight-low);
+    color: var(--rose-iris);
+}
+
+/* kbd shortcut hint — small chip at right of pill */
+.widget-type-search kbd {
+    font-family: var(--font-label) !important;
+    font-size: 10px !important;
+    background: var(--rose-highlight-low) !important;
+    border: 1px solid var(--border-soft) !important;
+    border-radius: 4px !important;
+    color: var(--rose-subtle) !important;
+    padding: 0.1em 0.45em !important;
+    flex-shrink: 0 !important;
+    letter-spacing: 0.04em !important;
+    margin-right: 0.4rem !important;
+}
+
+/* ============================================================
+   9. BOOKMARKS — icon grid
+   ============================================================ */
+
+/* 5-column grid */
+.widget-type-bookmarks ul.list {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr) !important;
+    gap: 0.5rem !important;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Strip list-with-separator top borders and padding from each cell */
+.widget-type-bookmarks ul.list > li,
+.widget-type-bookmarks ul.list > li + li {
+    position: relative !important;
+    padding: 0 !important;
+    border-top: none !important;
+}
+
+/* De-flex the item wrapper so icon-container fills the full cell width */
+.widget-type-bookmarks li > div {
+    display: block !important;
+}
+
+/* Visual tile */
+.widget-type-bookmarks .bookmarks-icon-container {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    aspect-ratio: 1 !important;
+    background: var(--rose-overlay) !important;
+    border: 1px solid var(--border-soft) !important;
+    border-radius: 0.5rem !important;
+    padding: 0.65rem !important;
+    transition:
+        background 0.18s ease,
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease !important;
+}
+
+/* <a> is empty and placed after the icon in the DOM — make it an absolute overlay
+   covering the full tile so the entire square is a click target */
+.widget-type-bookmarks a.bookmarks-link {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 1 !important;
+    display: block !important;
+    font-size: 0 !important;
+    border-radius: 0.5rem !important;
+}
+
+/* Icon sizing */
+.widget-type-bookmarks .bookmarks-icon {
+    width: 2rem !important;
+    height: 2rem !important;
+    object-fit: contain !important;
+    display: block !important;
+    pointer-events: none !important;
+    transition: transform 0.18s ease !important;
+    filter: grayscale(0) !important;
+    opacity: 1 !important;
+}
+
+/* Hover */
+.widget-type-bookmarks li:hover .bookmarks-icon-container {
+    background: var(--rose-highlight-med) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22) !important;
+    border-color: var(--border) !important;
+}
+.widget-type-bookmarks li:hover .bookmarks-icon {
+    transform: scale(1.05) !important;
+}
+
+/* ============================================================
+   10. SERVICES — underline-only icon tiles
+   ============================================================ */
+
+/* Outer split-column wrapper: transparent, no card chrome */
+.widget-type-split-column {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+}
+.widget-type-split-column:hover {
+    transform: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+html[data-scheme="light"] .widget-type-split-column,
+html[data-scheme="light"] .widget-type-split-column:hover {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* Inner cards: suppress the generic widget hover (lift + iris border) since icon
+   tiles handle their own hover. Keep the card border in the category color. */
+.widget-type-split-column .widget:hover {
+    transform: none !important;
+    border-color: var(--border) !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25) !important;
+}
+html[data-scheme="light"] .widget-type-split-column .widget:hover {
+    transform: none !important;
+    border-color: var(--border) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Masonry column gap */
+.widget-type-split-column .masonry-column {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+}
+
+/* Grid layout */
+ul.dynamic-columns {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)) !important;
+    gap: 6px !important;
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+/* Neutralize list-with-separator inter-item borders */
+ul.dynamic-columns > * + * {
+    border-top: none !important;
+}
+
+/* Tile base — column layout, no card chrome */
+.docker-container,
+.monitor-site {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 0 !important;
+    padding: 0.5rem 0.25rem 1.4rem !important;
+    background: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    transition: transform 0.18s ease !important;
+}
+.docker-container:hover,
+.monitor-site:hover {
+    transform: translateY(-2px) !important;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Icon wrapper div (docker tiles only — monitor icon is a direct img child) */
+.docker-container > .shrink-0:first-child {
+    width: 3.5rem !important;
+    height: 3.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    pointer-events: none !important;
+}
+
+/* Icons */
+.docker-container-icon,
+.monitor-site-icon {
+    width: 3.5rem !important;
+    height: 3.5rem !important;
+    object-fit: contain !important;
+    filter: none !important;
+    opacity: 1 !important;
+    transition: transform 0.18s ease !important;
+    pointer-events: none !important;
+}
+.docker-container:hover .docker-container-icon,
+.monitor-site:hover .monitor-site-icon {
+    transform: scale(1.05) !important;
+}
+
+/* Name div → absolute overlay so the <a> covers the full tile for navigation */
+.docker-container > .min-width-0 {
+    position: absolute !important;
+    inset: 0 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+}
+.docker-container > .min-width-0 > a {
+    display: block !important;
+    position: absolute !important;
+    inset: 0 !important;
+    font-size: 0 !important;
+    z-index: 1 !important;
+}
+/* Status badge — hide */
+.docker-container > .margin-left-auto {
+    display: none !important;
+}
+
+/* Monitor: same overlay for navigation; hide response text and status icon */
+.monitor-site > .grow {
+    position: absolute !important;
+    inset: 0 !important;
+    overflow: hidden !important;
+}
+.monitor-site > .grow > a {
+    display: block !important;
+    position: absolute !important;
+    inset: 0 !important;
+    font-size: 0 !important;
+    z-index: 1 !important;
+}
+.monitor-site > .grow > div,
+.monitor-site > .monitor-site-status-icon {
+    display: none !important;
+}
+
+/* Category underline via ::after */
+.docker-container::after,
+.monitor-site::after {
+    content: "";
+    position: absolute;
+    bottom: 4px;
+    left: 30%;
+    right: 30%;
+    height: 2px;
+    border-radius: 1px;
+    background: var(--svc-line, var(--rose-muted));
+    opacity: 0.55;
+    transition:
+        left 0.18s ease,
+        right 0.18s ease,
+        opacity 0.18s ease;
+}
+.docker-container:hover::after,
+.monitor-site:hover::after {
+    left: 18%;
+    right: 18%;
+    opacity: 1;
+}
+
+/* Group-level category color — set at widget, inherited by all tiles and header.
+   Masonry alternates: left col = widgets 1,3,5 · right col = widgets 2,4 */
+/* Left col #1 = fetch → gold */
+.widget-type-split-column .masonry-column:first-child .widget:nth-child(1) {
+    --svc-line: var(--rose-gold);
+}
+.widget-type-split-column
+    .masonry-column:first-child
+    .widget:nth-child(1)
+    .widget-header {
+    color: var(--rose-gold) !important;
+}
+
+/* Left col #2 = process → rose */
+.widget-type-split-column .masonry-column:first-child .widget:nth-child(2) {
+    --svc-line: var(--rose-rose);
+}
+.widget-type-split-column
+    .masonry-column:first-child
+    .widget:nth-child(2)
+    .widget-header {
+    color: var(--rose-rose) !important;
+}
+
+/* Left col #3 = infer → love */
+.widget-type-split-column .masonry-column:first-child .widget:nth-child(3) {
+    --svc-line: var(--rose-love);
+}
+.widget-type-split-column
+    .masonry-column:first-child
+    .widget:nth-child(3)
+    .widget-header {
+    color: var(--rose-love) !important;
+}
+
+/* Right col #1 = consume → iris */
+.widget-type-split-column .masonry-column:last-child .widget:nth-child(1) {
+    --svc-line: var(--rose-iris);
+}
+.widget-type-split-column
+    .masonry-column:last-child
+    .widget:nth-child(1)
+    .widget-header {
+    color: var(--rose-iris) !important;
+}
+
+/* Right col #2 = maintain → pine */
+.widget-type-split-column .masonry-column:last-child .widget:nth-child(2) {
+    --svc-line: var(--rose-pine);
+}
+.widget-type-split-column
+    .masonry-column:last-child
+    .widget:nth-child(2)
+    .widget-header {
+    color: var(--rose-pine) !important;
+}
+
+/* Offline / stopped → grayscale entire tile */
+.docker-container:has([data-popover-text="exited"]),
+.docker-container:has([data-popover-text="stopped"]),
+.docker-container:has(svg[fill*="negative"]) {
+    filter: grayscale(1) !important;
+    opacity: 0.55 !important;
+}
+
+/* ============================================================
+   11. MINIFLUX + KARAKEEP — tabs & articles system
+   ============================================================ */
+
+
+.articles {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    margin: 0;
+    align-items: flex-start;
+}
+
+/* Shared subtle hover row state */
+.articles > li {
+    transition: background 180ms ease;
+    cursor: pointer;
+    width: 100%;
+}
+.articles > li:hover {
+    background: var(--rose-highlight-low);
+    border-radius: 4px;
+}
+
+/* Source / time tokens */
+.art-src {
+    color: var(--rose-subtle);
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+.art-ago {
+    color: var(--rose-muted);
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 10px;
+    font-feature-settings: "tnum";
+}
+.art-dot {
+    color: var(--rose-muted);
+    opacity: 0.5;
+}
+
+
+/* ─ Variant: byline (source · time ABOVE title) ─ */
+.art-byline {
+    padding: 0.75rem 0.3rem 0.85rem;
+    border-bottom: 1px solid var(--border-soft);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.art-byline .art-meta-top {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+}
+.art-byline .art-title {
+    color: var(--rose-text);
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    line-height: 1.35;
+    text-wrap: pretty;
+}
+.articles-byline > li:last-of-type {
+    border-bottom: 0;
+}
+
+
+
+/* Hide the icon in Glance's collapsible button */
+.collapsible-container + .expand-toggle-button .expand-toggle-button-icon {
+    display: none;
+}
+
+/* Style Glance's expand button to match our design */
+.collapsible-container + .expand-toggle-button {
+    font-family: "Inter", system-ui, sans-serif !important;
+    font-size: 10px !important;
+    letter-spacing: 0.04em !important;
+    color: var(--rose-subtle) !important;
+    background: rgba(110, 106, 134, 0.08) !important;
+    border: none !important;
+    padding: 3px 9px !important;
+    border-radius: 999px !important;
+    margin-top: 0.65rem !important;
+    cursor: pointer !important;
+    transition:
+        background 180ms ease,
+        color 180ms ease !important;
+    width: auto !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+.collapsible-container + .expand-toggle-button:hover {
+    background: rgba(144, 122, 169, 0.16) !important;
+    color: var(--rose-iris) !important;
+}
+
+
+/* ============================================================
+   13. TASKS — TickTick
+   ============================================================ */
+
+/* Stat row */
+.dy-stat-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-soft);
+}
+.dy-stat-row > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.05rem;
+}
+.dy-stat-row b {
+    font-family: var(--font-display);
+    font-size: 17px;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    font-variant-numeric: tabular-nums;
+    color: var(--rose-text);
+    line-height: 1;
+}
+.dy-stat-row span {
+    font-family: var(--font-label);
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--rose-subtle);
+}
+.dy-stat-row .is-overdue b {
+    color: var(--rose-love);
+}
+.dy-stat-row .is-today b {
+    color: var(--rose-gold);
+}
+.dy-stat-row .is-zero {
+    opacity: 0.4;
+}
+
+.dy-stat-dot {
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: var(--rose-muted);
+    flex-shrink: 0;
+    align-self: center;
+    margin-top: -4px;
+}
+
+/* ─── Task cards ──────────────────────────────────────────────────── */
+.task-cards-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.task-card {
+    background: var(--tone-bg, rgba(110, 106, 134, 0.05));
+    border: 1px solid var(--tone-bd, var(--border-soft));
+    border-radius: 0.6rem;
+    padding: 0.85rem 0.9rem 0.9rem;
+    transition:
+        border-color 200ms ease,
+        background 200ms ease,
+        transform 200ms ease;
+}
+.task-card:hover {
+    transform: translateY(-1px);
+    border-color: var(--tone-color, var(--rose-iris));
+    background: var(--rose-surface);
+}
+
+.task-card-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    margin-bottom: 0.7rem;
+}
+.task-card-name {
+    color: var(--tone-color, var(--rose-text));
+    font-family: var(--font-label);
+    font-size: 9px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.task-card-n {
+    color: var(--rose-muted);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-variant-numeric: tabular-nums;
+}
+
+.task-card-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 0;
+    margin: 0;
+}
+
+/* ─── Task row: checkbox + body ───────────────────────────────────── */
+.task-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+}
+.task-row-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.task-check {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 11px;
+    height: 11px;
+    margin-top: 4px;
+    border-radius: 50%;
+    border: 1.2px solid var(--rose-muted);
+    flex-shrink: 0;
+    cursor: pointer;
+    position: relative;
+    transition:
+        border-color 180ms ease,
+        background 180ms ease,
+        transform 120ms ease;
+}
+.task-check:hover {
+    border-color: var(--tone-color-task, var(--rose-iris));
+    background: rgba(110, 106, 134, 0.08);
+}
+.task-check:active {
+    transform: scale(0.9);
+}
+
+/* per-tone hover + fill colour, avoids inheriting card's --tone-color */
+.task-check[data-tone="iris"] {
+    --tone-color-task: var(--rose-iris);
+}
+.task-check[data-tone="foam"] {
+    --tone-color-task: var(--rose-foam);
+}
+.task-check[data-tone="gold"] {
+    --tone-color-task: var(--rose-gold);
+}
+.task-check[data-tone="love"] {
+    --tone-color-task: var(--rose-love);
+}
+.task-check[data-tone="rose"] {
+    --tone-color-task: var(--rose-rose);
+}
+.task-check[data-tone="pine"] {
+    --tone-color-task: var(--rose-pine);
+}
+
+.task-check.is-checked {
+    background: var(--tone-color-task, var(--rose-iris));
+    border-color: var(--tone-color-task, var(--rose-iris));
+}
+.task-check.is-checked::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 1.5px;
+    width: 5px;
+    height: 3px;
+    border-left: 1.5px solid #fff;
+    border-bottom: 1.5px solid #fff;
+    transform: rotate(-45deg);
+}
+html[data-scheme="dark"] .task-check.is-checked::after {
+    border-color: var(--rose-base);
+}
+
+.task-card-title {
+    color: var(--rose-text);
+    font-family: var(--font-body);
+    font-size: 13px;
+    line-height: 1.45;
+    text-wrap: pretty;
+}
+
+/* Completed state */
+li.is-completed .task-card-title {
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--rose-muted);
+    color: var(--rose-muted);
+    opacity: 0.65;
+}
+li.is-completed .dy-due-chip {
+    display: none;
+}
+.task-card-list > li.is-completed {
+    opacity: 0.65;
+}
+
+/* Due chips */
+.dy-due-chip {
+    font-family: var(--font-label);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-variant-numeric: tabular-nums;
+    padding: 0.1em 0.45em;
+    border-radius: 3px;
+    display: inline-block;
+    align-self: flex-start;
+    color: var(--rose-muted);
+    background: var(--rose-highlight-low);
+}
+.dy-due-chip.is-overdue {
+    color: var(--rose-love);
+    background: hsla(343, 35%, 55%, 0.12);
+}
+.dy-due-chip.is-today {
+    color: var(--rose-gold);
+    background: hsla(34, 80%, 50%, 0.12);
+}
+.dy-due-chip.is-soon {
+    color: var(--rose-subtle);
+}
+.dy-due-chip.is-future {
+    color: var(--rose-muted);
+}
+
+.dy-empty {
+    font-family: var(--font-label);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--rose-muted);
+    padding: 0.25rem 0;
+}
+
+/* ============================================================
+   14. PARCELS — tone-tinted tracking cards
+   ============================================================ */
+/* ─── Parcel deliveries ────────────────────────────────────────────── */
+.parcel-empty {
+    text-align: center;
+    color: var(--rose-subtle);
+    padding: 1.5rem 0;
+    font-size: 12px;
+}
+
+/* Hide entire widget when empty */
+.widget:has(.dy-parcel-empty) {
+    display: none !important;
+}
+
+.parcel-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+}
+
+.parcel-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 0.85rem 0.9rem 0.9rem;
+    background: var(--tone-bg, rgba(110, 106, 134, 0.05));
+    border: 1px solid var(--tone-bd, var(--border-soft));
+    border-radius: 0.6rem;
+    transition:
+        border-color 200ms ease,
+        background 200ms ease,
+        transform 200ms ease;
+    cursor: default;
+}
+.parcel-card:hover {
+    transform: translateY(-1px);
+    border-color: var(--tone-color, var(--status-color));
+    background: var(--rose-surface);
+}
+
+/* Exception cards: bolder emphasis (status-color is love red) */
+.parcel-card[data-tone="love"] {
+    border-width: 1px;
+    border-left-width: 3px;
+    border-left-color: var(--rose-love);
+}
+html[data-scheme="dark"] .parcel-card[data-tone="love"] {
+    border-left-color: var(--rose-love);
+}
+
+.parcel-title {
+    color: var(--rose-text);
+    font-size: 12.5px;
+    line-height: 1.35;
+    margin-bottom: 0.4rem;
+    text-wrap: pretty;
+}
+
+/* Carrier copy-to-clipboard button bottom-right (in flow) */
+.parcel-carrier {
+    align-self: flex-end;
+    margin-top: 0.55rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    font-family: "Inter", system-ui, sans-serif;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--rose-muted);
+    padding: 3px 6px 3px 7px;
+    border-radius: 3px;
+    background: rgba(110, 106, 134, 0.08);
+    transition:
+        background 180ms ease,
+        color 180ms ease,
+        transform 120ms ease;
+}
+.parcel-carrier:hover {
+    color: var(--rose-text);
+    background: rgba(110, 106, 134, 0.18);
+}
+.parcel-carrier:active {
+    transform: translateY(1px);
+}
+
+.parcel-carrier-icon {
+    display: inline-flex;
+    align-items: center;
+    color: var(--rose-muted);
+    transition:
+        color 180ms ease,
+        transform 180ms ease;
+}
+.parcel-carrier:hover .parcel-carrier-icon {
+    color: var(--rose-iris);
+}
+
+/* Copied feedback */
+.parcel-carrier.is-copied {
+    color: var(--rose-foam);
+    background: hsla(189, 30%, 48%, 0.12);
+}
+.parcel-carrier.is-copied .parcel-carrier-icon {
+    color: var(--rose-foam);
+}
+html[data-scheme="dark"] .parcel-carrier.is-copied {
+    background: hsla(189, 43%, 73%, 0.14);
+}
+
+/* Status row */
+.parcel-status-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.35rem;
+    font-size: 10.5px;
+    font-family: "Inter", system-ui, sans-serif;
+}
+.parcel-status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--status-color);
+    box-shadow: 0 0 0 0 var(--status-color);
+}
+/* Pulse for active states (in transit / out for delivery) */
+.parcel-card[data-tone="foam"] .parcel-status-dot,
+.parcel-card[data-tone="iris"] .parcel-status-dot {
+    animation: parcelPulse 2.2s ease-in-out infinite;
+}
+@keyframes parcelPulse {
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 var(--status-color);
+    }
+    50% {
+        box-shadow: 0 0 0 4px transparent;
+        opacity: 0.85;
+    }
+}
+
+.parcel-status {
+    color: var(--status-color);
+    font-weight: 500;
+    text-transform: lowercase;
+    letter-spacing: 0.01em;
+}
+.parcel-sep {
+    color: var(--rose-muted);
+    opacity: 0.5;
+}
+.parcel-eta {
+    font-feature-settings: "tnum";
+}
+
+/* Latest event line */
+.parcel-event {
+    font-size: 10.5px;
+    color: var(--rose-subtle);
+    line-height: 1.4;
+    text-wrap: pretty;
+}
+.parcel-event-text {
+    color: var(--rose-subtle);
+}
+.parcel-event-sep {
+    color: var(--rose-muted);
+    opacity: 0.6;
+}
+.parcel-event-loc {
+    color: var(--rose-muted);
+}
+
+/* ============================================================
+   15. WEATHER — .dy-wx-*
+   ============================================================ */
+.dy-wx {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* Hero */
+.dy-wx-hero {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+.dy-wx-now {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+.dy-wx-temp {
+    font-family: var(--font-display);
+    font-size: 46px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.015em;
+    color: var(--rose-text);
+}
+.dy-wx-temp span {
+    font-size: 20px;
+    color: var(--rose-subtle);
+}
+.dy-wx-feels {
+    font-family: var(--font-label);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--rose-subtle);
+}
+.dy-wx-cond {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    padding-top: 0.2rem;
+}
+.dy-wx-cond-icon {
+    font-size: 36px;
+    line-height: 1;
+}
+.dy-wx-cond-name {
+    font-family: var(--font-label);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--rose-subtle);
+}
+
+/* Meta row */
+.dy-wx-meta {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    border-top: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--border-soft);
+    padding: 0.5rem 0;
+    margin-bottom: 0.9rem;
+}
+.dy-wx-meta > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+}
+.dy-wx-meta label {
+    font-family: var(--font-label);
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--rose-muted);
+}
+.dy-wx-meta b {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--rose-text);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+.dy-wx-meta b i {
+    font-style: normal;
+    font-size: 10px;
+    color: var(--rose-muted);
+}
+
+/* Sections */
+.dy-wx-section {
+    margin-bottom: 0.85rem;
+}
+.dy-wx-section:last-child {
+    margin-bottom: 0;
+}
+
+.dy-wx-section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.35rem;
+}
+.dy-wx-section-head > span:first-child {
+    font-family: var(--font-label);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--rose-subtle);
+}
+.dy-wx-section-now {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--rose-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Temperature sparkline */
+.dy-wx-spark {
+    width: 100%;
+    height: 107px;
+    display: block;
+    overflow: visible;
+}
+.dy-wx-spark-line {
+    fill: none;
+    stroke: var(--rose-gold);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+}
+.dy-wx-spark-fill {
+    stroke: none;
+}
+
+/* SVG precipitation bars (combined chart) */
+.dy-wx-spark-bar {
+    fill: var(--rose-highlight-med);
+}
+.dy-wx-spark-bar.is-wet {
+    fill: var(--rose-foam);
+}
+.dy-wx-spark-bar:hover {
+    filter: brightness(1.6);
+}
+
+/* Precipitation alert */
+.dy-wx-alert {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    margin-bottom: 0.4rem;
+}
+.dy-wx-alert i {
+    font-size: 9px;
+    opacity: 0.8;
+}
+.dy-wx-alert.is-light {
+    background: var(--rose-highlight-low);
+    color: var(--rose-subtle);
+}
+.dy-wx-alert.is-moderate {
+    background: hsla(189, 43%, 55%, 0.1);
+    color: var(--rose-foam);
+}
+.dy-wx-alert.is-heavy {
+    background: hsla(343, 35%, 57%, 0.12);
+    color: var(--rose-love);
+}
+
+
+/* Forecast horizontal row cards */
+.dy-wx-forecast-wrap .dy-wx-section-head {
+    margin-bottom: 0.4rem;
+}
+.dy-wx-forecast {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+.dy-wx-day {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.4rem;
+    border-radius: 0.35rem;
+    min-width: unset;
+    flex: unset;
+}
+.dy-wx-day.is-weekend {
+    background: var(--rose-highlight-low);
+}
+.dy-wx-day.is-today {
+    background: hsla(267, 22%, 57%, 0.08);
+}
+
+.dy-wx-day-name {
+    font-family: var(--font-label);
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--rose-subtle);
+    width: 2rem;
+    flex-shrink: 0;
+}
+.dy-wx-day.is-today .dy-wx-day-name {
+    color: var(--rose-iris);
+}
+.dy-wx-day-icon {
+    font-size: 13px;
+    width: 1.2rem;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.dy-wx-day-temps {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 0;
+    flex: 1;
+}
+.dy-wx-day-hi {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--rose-text);
+    font-variant-numeric: tabular-nums;
+}
+.dy-wx-day-hi::after {
+    content: "/";
+    color: var(--rose-muted);
+    font-weight: 400;
+    margin: 0 1px;
+}
+.dy-wx-day-lo {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--rose-muted);
+    font-variant-numeric: tabular-nums;
+}
+.dy-wx-day-precip {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--rose-muted);
+    font-variant-numeric: tabular-nums;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+.dy-wx-day-precip.is-wet {
+    color: var(--rose-foam);
+}
+
+/* Sparkline hover + time ticks */
+.dy-wx-spark-wrap {
+    position: relative;
+}
+.dy-wx-spark-cursor {
+    stroke: var(--rose-subtle);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.45;
+}
+.dy-wx-tooltip {
+    position: absolute;
+    top: 3px;
+    display: none;
+    pointer-events: none;
+    background: var(--rose-surface);
+    border: 1px solid var(--rose-highlight-med);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--rose-subtle);
+    white-space: nowrap;
+    z-index: 10;
+}
+.dy-wx-ticks {
+    position: relative;
+    height: 13px;
+    margin-top: 2px;
+}
+.dy-wx-tick {
+    position: absolute;
+    transform: translateX(-50%);
+    font-family: var(--font-mono);
+    font-size: 8px;
+    color: var(--rose-muted);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+.dy-wx-tick:first-child {
+    transform: translateX(0);
+}
+.dy-wx-tick:last-child {
+    transform: translateX(-100%);
+}
+
+
+/* ============================================================
+   COMMAND PALETTE
+   ============================================================ */
+.dy-cp-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 14vh;
+    background: rgba(25, 23, 36, 0.72);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.dy-cp-overlay[hidden] {
+    display: none !important;
+}
+
+.dy-cp-overlay.is-open {
+    opacity: 1;
+}
+
+.dy-cp-modal {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 1.25rem;
+    background: var(--rose-surface);
+    border: 1px solid var(--border);
+    border-radius: 0.85rem;
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+    transform: translateY(-10px) scale(0.98);
+    transition: transform 0.15s ease;
+}
+
+.dy-cp-overlay.is-open .dy-cp-modal {
+    transform: translateY(0) scale(1);
+}
+
+/* Input row */
+.dy-cp-input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.dy-cp-search-icon {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    color: var(--rose-muted);
+}
+
+.dy-cp-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--rose-text);
+    caret-color: var(--rose-iris);
+    padding: 0;
+    min-width: 0;
+}
+
+.dy-cp-input::placeholder {
+    color: var(--rose-muted);
+}
+
+.dy-cp-esc-hint {
+    font-family: var(--font-label);
+    font-size: 10px;
+    color: var(--rose-muted);
+    background: var(--rose-overlay);
+    border: 1px solid var(--border-soft);
+    border-radius: 4px;
+    padding: 2px 6px;
+    flex-shrink: 0;
+    user-select: none;
+}
+
+/* Results list */
+.dy-cp-results {
+    list-style: none;
+    margin: 0;
+    padding: 0.35rem 0;
+    max-height: 340px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--rose-highlight-high) transparent;
+}
+
+.dy-cp-empty {
+    padding: 1.5rem;
+    text-align: center;
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--rose-muted);
+}
+
+.dy-cp-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: background 0.1s ease;
+}
+
+.dy-cp-item:hover {
+    background: var(--rose-highlight-low);
+}
+
+.dy-cp-item.is-selected {
+    background: var(--rose-highlight-med);
+}
+
+.dy-cp-icon {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    flex-shrink: 0;
+    border-radius: 3px;
+}
+
+.dy-cp-icon-placeholder {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.dy-cp-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+}
+
+.dy-cp-item-name {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--rose-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dy-cp-item.is-selected .dy-cp-item-name {
+    color: var(--rose-iris);
+}
+
+.dy-cp-item-meta {
+    font-family: var(--font-label);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--rose-muted);
+}
+
+/* Section divider between local and web results */
+.dy-cp-divider {
+    height: 1px;
+    background: var(--border-soft);
+    margin: 0.3rem 1rem;
+    list-style: none;
+}
+
+/* SVG icon for web/suggestion items */
+.dy-cp-icon--svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    color: var(--rose-muted);
+}
+
+/* Suggestion items */
+.dy-cp-item--suggestion .dy-cp-item-meta {
+    color: var(--rose-pine);
+}
+
+/* Search item — "Search Kagi for X" */
+.dy-cp-item--search {
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+}
+
+.dy-cp-item--search .dy-cp-item-meta {
+    color: var(--rose-iris);
+    opacity: 0.7;
+}
+
+.dy-cp-query {
+    font-style: normal;
+    color: var(--rose-iris);
+}
+
+.dy-cp-item.is-selected .dy-cp-query {
+    color: var(--rose-iris);
+}
+
+/* Light mode */
+html[data-scheme="light"] .dy-cp-overlay {
+    background: rgba(250, 244, 237, 0.72);
+}
+
+html[data-scheme="light"] .dy-cp-modal {
+    box-shadow: 0 24px 64px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================================
+   16. WEATHER HORIZONTAL — .dy-wx-h-* (head-widget variant)
+   ============================================================ */
+.dy-wx-h {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    width: 100%;
+    gap: 0;
+}
+
+/* Vertical separator */
+.dy-wx-h-sep {
+    width: 1px;
+    background: var(--border-soft);
+    align-self: stretch;
+    margin: 0 0.9rem;
+    flex-shrink: 0;
+}
+
+/* ---- Hero ---- */
+.dy-wx-h-hero {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    flex-shrink: 0;
+}
+
+.dy-wx-h-hero-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+}
+
+.dy-wx-h-cond-icon {
+    font-size: 40px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.dy-wx-h-temp-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.dy-wx-h-temp {
+    font-family: var(--font-display);
+    font-size: 34px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.015em;
+    color: var(--rose-text);
+}
+
+.dy-wx-h-temp span {
+    font-size: 15px;
+    color: var(--rose-subtle);
+}
+
+.dy-wx-h-feels {
+    font-family: var(--font-label);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--rose-subtle);
+}
+
+.dy-wx-h-cond-name {
+    font-family: var(--font-label);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--rose-muted);
+}
+
+/* ---- Meta stats ---- */
+.dy-wx-h-meta {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.3rem;
+    flex-shrink: 0;
+}
+
+.dy-wx-h-meta > div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.dy-wx-h-meta-icon {
+    font-size: 9px;
+    color: var(--rose-muted);
+    width: 1rem;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.dy-wx-h-meta b {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--rose-text);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+.dy-wx-h-meta b i {
+    font-style: normal;
+    font-size: 9px;
+    color: var(--rose-muted);
+}
+
+/* ---- Sparkline section ---- */
+.dy-wx-h-spark-section {
+    flex: 1 9999 auto;
+    min-width: 190px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.dy-wx-h-alert {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.1em 0.45em;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+}
+.dy-wx-h-alert i {
+    font-size: 8px;
+    opacity: 0.8;
+}
+.dy-wx-h-alert.is-light {
+    background: var(--rose-highlight-low);
+    color: var(--rose-subtle);
+}
+.dy-wx-h-alert.is-moderate {
+    background: hsla(189, 43%, 55%, 0.1);
+    color: var(--rose-foam);
+}
+.dy-wx-h-alert.is-heavy {
+    background: hsla(343, 35%, 57%, 0.12);
+    color: var(--rose-love);
+}
+
+.dy-wx-h-spark-wrap {
+    position: relative;
+    flex: 1;
+}
+
+.dy-wx-h-spark {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+}
+
+.dy-wx-h-spark-line {
+    fill: none;
+    stroke: var(--rose-gold);
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+}
+.dy-wx-h-spark-fill {
+    stroke: none;
+}
+.dy-wx-h-spark-bar {
+    fill: var(--rose-highlight-high);
+    fill-opacity: 0.3;
+}
+.dy-wx-h-spark-bar.is-wet {
+    fill: var(--rose-foam);
+    fill-opacity: 0.45;
+}
+.dy-wx-h-spark-bar:hover {
+    filter: brightness(1.6);
+}
+
+.dy-wx-h-spark-cursor {
+    stroke: var(--rose-subtle);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.45;
+}
+
+.dy-wx-h-tooltip {
+    position: absolute;
+    top: 3px;
+    display: none;
+    pointer-events: none;
+    background: var(--rose-surface);
+    border: 1px solid var(--rose-highlight-med);
+    border-radius: 3px;
+    padding: 1px 5px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--rose-subtle);
+    white-space: nowrap;
+    z-index: 10;
+}
+
+.dy-wx-h-ticks {
+    position: relative;
+    height: 11px;
+    flex-shrink: 0;
+}
+
+.dy-wx-h-tick {
+    position: absolute;
+    transform: translateX(-50%);
+    font-family: var(--font-mono);
+    font-size: 8px;
+    color: var(--rose-muted);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+.dy-wx-h-tick:first-child {
+    transform: translateX(0);
+}
+.dy-wx-h-tick:last-child {
+    transform: translateX(-100%);
+}
+
+/* ---- 7-day forecast ---- */
+.dy-wx-h-forecast {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0.15rem;
+    flex-shrink: 1;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.dy-wx-h-forecast::-webkit-scrollbar {
+    display: none;
+}
+
+.dy-wx-h-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    padding: 0.3rem 0.5rem;
+    border-radius: 0.35rem;
+    min-width: 46px;
+    flex-shrink: 0;
+}
+
+.dy-wx-h-day.is-weekend {
+    background: var(--rose-highlight-low);
+}
+
+.dy-wx-h-day-name {
+    font-family: var(--font-label);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--rose-subtle);
+}
+
+.dy-wx-h-day-icon {
+    font-size: 15px;
+}
+
+.dy-wx-h-day-temps {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    line-height: 1.3;
+}
+
+.dy-wx-h-day-hi {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--rose-text);
+    font-variant-numeric: tabular-nums;
+}
+
+.dy-wx-h-day-lo {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--rose-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.dy-wx-h-day-precip {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    color: var(--rose-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+.dy-wx-h-day-precip.is-wet {
+    color: var(--rose-foam);
+}
+
+/* ---- Custom heading ---- */
+.dy-wx-h-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5em;
+    padding-bottom: 0.55rem;
+    margin-bottom: 0.4rem;
+    font-family: var(--font-label);
+}
+.dy-wx-h-header-brand {
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--rose-gold);
+}
+.dy-wx-h-header-meta {
+    font-size: 10px;
+    font-weight: 400;
+    text-transform: lowercase;
+    letter-spacing: 0.06em;
+    color: var(--rose-muted);
+}
+
+/* ---- Transparent widget shell (head weather only) ---- */
+.widget:has(.dy-wx-h) .widget-header {
+    display: none !important;
+}
+.widget:has(.dy-wx-h) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding-top: 0 !important;
+}
+.widget:has(.dy-wx-h):hover {
+    transform: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+html[data-scheme="light"] .widget:has(.dy-wx-h),
+html[data-scheme="light"] .widget:has(.dy-wx-h):hover {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+/* ============================================================
+   17. CALENDAR WIDGET — .dy-cal-*
+   ============================================================ */
+
+/* allow hover tooltips to overflow the card boundary */
+.widget:has(.dy-cal-grid) {
+    overflow: visible !important;
+}
+
+/* 7-column grid: DOW headers + 35 day cells (5 weeks, Mon-first) */
+.dy-cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px 1px;
+    margin-bottom: 0.2rem;
+}
+
+.dy-cal-dow {
+    font-family: var(--font-label);
+    font-size: 8.5px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--rose-muted);
+    text-align: center;
+    padding-bottom: 4px;
+}
+
+.dy-cal-day {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 400;
+    text-align: center;
+    padding: 3px 1px;
+    border-radius: 4px;
+    color: var(--rose-subtle);
+    line-height: 1;
+    position: relative;
+    transition:
+        background 0.12s ease,
+        color 0.12s ease;
+    cursor: default;
+}
+
+/* past days: dimmed */
+.dy-cal-day.is-past {
+    color: var(--rose-muted);
+    opacity: 0.5;
+}
+
+/* today: iris pill */
+.dy-cal-day.is-today {
+    background: var(--rose-iris);
+    color: var(--rose-base);
+    font-weight: 600;
+    opacity: 1;
+}
+
+/* gold text for days that have events (no background change) */
+.dy-cal-day.has-event {
+    color: var(--rose-gold);
+}
+
+/* today with an event: iris background stays, text turns gold */
+.dy-cal-day.is-today.has-event {
+    color: var(--rose-gold);
+}
+
+/* hover tooltip via CSS ::after + data-tip attribute */
+.dy-cal-day[data-tip]:hover {
+    z-index: 50;
+}
+
+.dy-cal-day[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 5px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--rose-overlay);
+    border: 1px solid var(--border);
+    border-radius: 0.4rem;
+    padding: 0.3rem 0.5rem;
+    font-family: var(--font-label);
+    font-size: 9.5px;
+    font-weight: 400;
+    color: var(--rose-text);
+    white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28);
+    pointer-events: none;
+    display: none;
+    z-index: 50;
+    letter-spacing: 0.01em;
+}
+
+.dy-cal-day[data-tip]:hover::after {
+    display: block;
+}
+
+/* separator between grid and event list */
+.dy-cal-sep {
+    height: 1px;
+    background: var(--border-soft);
+    margin: 0.8rem 0;
+}
+
+/* ── Event rows ── */
+.dy-cal-event {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-soft);
+}
+
+.dy-cal-event:last-of-type {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+/* left column: weekday abbr + large day number */
+.dy-cal-event-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 26px;
+    padding-top: 1px;
+}
+
+.dy-cal-event-dow {
+    font-family: var(--font-label);
+    font-size: 8.5px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--rose-muted);
+    line-height: 1;
+}
+
+.dy-cal-event-day {
+    font-family: var(--font-display);
+    font-size: 21px;
+    line-height: 1.05;
+    color: var(--rose-text);
+}
+
+.dy-cal-event-day.is-today {
+    color: var(--rose-iris);
+}
+
+/* right column: title + meta */
+.dy-cal-event-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.dy-cal-event-title {
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--rose-text);
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.dy-cal-event-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 0.35rem;
+    margin-top: 0.15rem;
+}
+
+.dy-cal-event-time {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--rose-muted);
+    white-space: nowrap;
+}
+
+.dy-cal-event-loc {
+    font-family: var(--font-label);
+    font-size: 9.5px;
+    color: var(--rose-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 110px;
+}
+
+/* relative chip sits top-right of each event row */
+.dy-cal-event .dy-due-chip {
+    flex-shrink: 0;
+    align-self: flex-start;
+    margin-top: 3px;
+}
+
+/* ============================================================
+   18. NOW PLAYING — .np-*
+   ============================================================ */
+
+.np-empty {
+    font-family: var(--font-label);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--rose-muted);
+    padding: 0.25rem 0;
+}
+
+/* Hero card — 2-col grid: poster | info */
+.np-hero {
+    display: grid;
+    grid-template-columns: 88px 1fr;
+    gap: 1rem;
+    position: relative;
+}
+
+.np-hero--more {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-soft);
+}
+
+/* ── Poster ────────────────────────────────── */
+.np-hero-poster {
+    aspect-ratio: 2 / 3;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    box-shadow: 0 4px 14px -8px rgba(0, 0, 0, 0.3);
+    position: relative;
+    text-decoration: none;
+    background: var(--rose-overlay);
+}
+
+.np-hero-poster img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.np-hero-poster-hint {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    font-family: var(--font-display);
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 12px;
+    padding: 6px;
+    line-height: 1.1;
+    text-transform: lowercase;
+    background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.45) 0%,
+        transparent 100%
+    );
+}
+
+/* ── Info column ────────────────────────────── */
+.np-hero-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.np-hero-eyebrow {
+    font-family: var(--font-label);
+    font-size: 9.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--rose-subtle);
+    margin-bottom: 4px;
+}
+
+.np-hero-title {
+    font-family: var(--font-display);
+    color: var(--rose-text);
+    font-size: 18px;
+    line-height: 1.1;
+    margin-bottom: 2px;
+    text-wrap: pretty;
+}
+
+.np-hero-episode {
+    color: var(--rose-subtle);
+    font-size: 12px;
+    font-style: italic;
+    font-family: var(--font-body);
+    margin-bottom: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.np-hero-meta {
+    color: var(--rose-subtle);
+    font-size: 10.5px;
+    font-family: var(--font-label);
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+/* ── Progress bar ───────────────────────────── */
+.np-progress {
+    height: 2px;
+    background: rgba(110, 106, 134, 0.15);
+    border-radius: 1px;
+    overflow: hidden;
+    margin: 0.55rem 0 0.35rem;
+}
+
+.np-progress-fill {
+    height: 100%;
+    border-radius: 1px;
+    transition: width 400ms ease;
+}
+
+/* ── Time row ───────────────────────────────── */
+.np-hero-time {
+    color: var(--rose-muted);
+    font-size: 9.5px;
+    font-family: var(--font-label);
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+}
+
+/* ── Shared atoms ───────────────────────────── */
+.np-sep {
+    color: var(--rose-muted);
+    opacity: 0.55;
+    margin: 0 0.05rem;
+}
+
+.np-user {
+    color: var(--rose-iris);
+}
+
+/* ── Pager dots (multiple sessions) ─────────── */
+.np-hero-pager {
+    position: absolute;
+    right: 0;
+    top: -2px;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.np-hero-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--rose-muted);
+    opacity: 0.4;
+    display: inline-block;
+}
+
+.np-hero-dot.is-active {
+    opacity: 1;
+    background: var(--rose-iris);
+}
+
+/* ============================================================
+   19. MEDIA CAROUSEL — .dy-mc-*
+   ============================================================ */
+
+.widget:has(.dy-mc-carousel) {
+    overflow: visible;
+}
+
+.dy-mc-carousel {
+    position: relative;
+    margin: 0 -0.5rem;
+}
+
+.dy-mc-track {
+    display: flex;
+    gap: 0.85rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.25rem 0.5rem 0.5rem;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.dy-mc-track::-webkit-scrollbar {
+    display: none;
+}
+
+.dy-mc-card {
+    flex: 0 0 130px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    transition: transform 200ms ease;
+}
+.dy-mc-card:hover {
+    transform: translateY(-2px);
+}
+
+.dy-mc-poster {
+    aspect-ratio: 2 / 3;
+    border-radius: 0.55rem;
+    overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+    position: relative;
+    background: var(--rose-overlay);
+    box-shadow: 0 4px 14px -8px rgba(0, 0, 0, 0.3);
+    margin-bottom: 0.5rem;
+    transition: box-shadow 200ms ease;
+}
+.dy-mc-card:hover .dy-mc-poster {
+    box-shadow: 0 8px 22px -10px rgba(0, 0, 0, 0.45);
+}
+
+.dy-mc-poster img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.dy-mc-poster-hint {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    font-family: var(--font-display);
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 6px 5px 5px;
+    line-height: 1.15;
+    background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.5) 0%,
+        transparent 100%
+    );
+}
+
+.dy-mc-title {
+    font-family: var(--font-body);
+    color: var(--rose-text);
+    font-size: 12.5px;
+    line-height: 1.3;
+    text-wrap: pretty;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.dy-mc-sub {
+    font-family: var(--font-label);
+    color: var(--rose-subtle);
+    font-size: 9.5px;
+    letter-spacing: 0.04em;
+    margin-top: 1px;
+}
+
+.dy-mc-time {
+    font-family: var(--font-label);
+    color: var(--rose-muted);
+    font-size: 9px;
+    margin-top: 3px;
+    display: flex;
+    align-items: baseline;
+    gap: 0.2rem;
+    flex-wrap: wrap;
+}
+
+.dy-mc-user {
+    color: var(--rose-iris);
+}
+
+/* ── Arrow buttons ─────────────────────────────────── */
+.dy-mc-arrow {
+    position: absolute;
+    top: 35%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 36px;
+    background: var(--rose-surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--rose-subtle);
+    cursor: pointer;
+    appearance: none;
+    z-index: 2;
+    opacity: 0;
+    transition:
+        opacity 200ms ease,
+        color 200ms ease,
+        background 200ms ease;
+    box-shadow: 0 2px 8px -3px rgba(0, 0, 0, 0.2);
+}
+.dy-mc-carousel:hover .dy-mc-arrow {
+    opacity: 0.95;
+}
+.dy-mc-arrow:hover {
+    color: var(--rose-iris);
+    background: var(--rose-base);
+}
+.dy-mc-arrow-left {
+    left: -6px;
+}
+.dy-mc-arrow-right {
+    right: -6px;
+}
+
+/* ── Edge fade gradients ───────────────────────────── */
+.dy-mc-carousel::before,
+.dy-mc-carousel::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 12px;
+    width: 28px;
+    pointer-events: none;
+    z-index: 1;
+}
+.dy-mc-carousel::before {
+    left: 0;
+    background: linear-gradient(to right, var(--rose-surface), transparent);
+}
+.dy-mc-carousel::after {
+    right: 0;
+    background: linear-gradient(to left, var(--rose-surface), transparent);
+}
+
+/* ============================================================
+   20. PI-HOLE DNS — .dy-ph-*
+   ============================================================ */
+
+.dy-ph-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.dy-ph-card {
+    background: var(--tone-bg, rgba(110, 106, 134, 0.05));
+    border: 1px solid var(--tone-bd, var(--border-soft));
+    border-radius: 0.6rem;
+    padding: 0.7rem 0.85rem;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+.dy-ph-card:hover {
+    transform: translateY(-1px);
+    border-color: var(--tone-color, var(--rose-iris));
+    background: var(--rose-surface);
+}
+
+.dy-ph-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.55rem;
+}
+
+.dy-ph-name {
+    font-family: var(--font-label);
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--tone-color, var(--rose-pine));
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+.dy-ph-name:hover {
+    color: var(--rose-iris);
+}
+
+.dy-ph-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-label);
+    font-size: 8.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    padding: 0.15em 0.5em;
+    border-radius: 3px;
+}
+.dy-ph-badge::before {
+    content: "";
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+}
+.dy-ph-badge.is-active {
+    color: var(--rose-foam);
+    background: hsla(189, 30%, 48%, 0.1);
+}
+.dy-ph-badge.is-disabled {
+    color: var(--rose-gold);
+    background: hsla(34, 80%, 50%, 0.1);
+}
+.dy-ph-badge.is-offline {
+    color: var(--rose-love);
+    background: hsla(343, 35%, 55%, 0.1);
+}
+
+.dy-ph-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-bottom: 0.5rem;
+}
+
+.dy-ph-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.dy-ph-val {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--rose-text);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+.dy-ph-val-blocked {
+    color: var(--rose-foam);
+}
+
+.dy-ph-lbl {
+    font-family: var(--font-label);
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--rose-muted);
+}
+
+.dy-ph-dot {
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: var(--rose-muted);
+    flex-shrink: 0;
+    align-self: center;
+}
+
+.dy-ph-bar-track {
+    height: 2px;
+    background: var(--rose-highlight-med);
+    border-radius: 1px;
+    overflow: hidden;
+}
+
+.dy-ph-bar-fill {
+    height: 100%;
+    background: var(--rose-foam);
+    border-radius: 1px;
+    max-width: 100%;
+}
+
+.dy-ph-warnings {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.dy-ph-warn {
+    font-family: var(--font-label);
+    font-size: 9px;
+    letter-spacing: 0.03em;
+    color: var(--rose-gold);
+    background: hsla(34, 80%, 50%, 0.08);
+    border-radius: 3px;
+    padding: 0.25em 0.5em;
+    line-height: 1.4;
+}
+
+.dy-ph-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.1rem;
+}
+
+.dy-ph-btn {
+    flex: 1;
+    appearance: none;
+    background: var(--rose-highlight-low);
+    border: 1px solid var(--border-soft);
+    border-radius: 4px;
+    color: var(--rose-subtle);
+    cursor: pointer;
+    font-family: var(--font-label);
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    padding: 0.45em 0.8em;
+    text-transform: uppercase;
+    transition:
+        background 0.18s ease,
+        border-color 0.18s ease,
+        color 0.18s ease,
+        transform 0.12s ease;
+}
+.dy-ph-btn:hover {
+    background: hsla(197, 49%, 38%, 0.12);
+    border-color: var(--rose-pine);
+    color: var(--rose-pine);
+}
+.dy-ph-btn:active {
+    transform: translateY(1px);
+}
+.dy-ph-btn.is-paused {
+    background: hsla(34, 80%, 50%, 0.1);
+    border-color: var(--rose-gold);
+    color: var(--rose-gold);
+}
+
+/* Server Stats Widget — native widget restyling */
+.widget-type-server-stats .widget-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+}
+
+.widget-type-server-stats .server-container {
+    background: rgba(110, 106, 134, 0.05);
+    border: 1px solid var(--border-soft);
+    border-radius: 0.6rem;
+    padding: 0.7rem 0.85rem !important;
+    transition:
+        border-color 0.2s ease,
+        background 0.2s ease,
+        transform 0.2s ease;
+}
+.widget-type-server-stats .server-container:hover {
+    transform: translateY(-1px);
+    border-color: var(--rose-pine);
+    background: var(--rose-surface);
+}
+
+.widget-type-server-stats .server-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem !important;
+}
+
+.widget-type-server-stats .server-name {
+    font-family: var(--font-label) !important;
+    font-size: 10px !important;
+    font-weight: 500 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.1em !important;
+    color: var(--rose-pine) !important;
+}
+
+/* Stats row (CPU, RAM, etc.) */
+.widget-type-server-stats .server-info-row,
+.widget-type-server-stats ul.list-horizontal-text {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.55rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.widget-type-server-stats .server-info-row > *,
+.widget-type-server-stats ul.list-horizontal-text > li {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.1rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.widget-type-server-stats .server-info-row > *::after,
+.widget-type-server-stats ul.list-horizontal-text > li::after {
+    content: none !important;
+}
+
+/* Separator dots */
+.widget-type-server-stats .server-info-row > *:not(:last-child)::after,
+.widget-type-server-stats ul.list-horizontal-text > li:not(:last-child)::after {
+    content: "" !important;
+    display: inline-block !important;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: var(--rose-muted);
+    margin-left: 0.55rem;
+    align-self: center;
+}
+
+.widget-type-server-stats .size-h3,
+.widget-type-server-stats .color-highlight {
+    font-family: var(--font-mono) !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: var(--rose-text) !important;
+    font-variant-numeric: tabular-nums !important;
+    line-height: 1 !important;
+}
+
+.widget-type-server-stats .size-h5 {
+    font-family: var(--font-label) !important;
+    font-size: 8px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.07em !important;
+    color: var(--rose-muted) !important;
+}
+
+/* Progress bars */
+.widget-type-server-stats .progress-bar {
+    height: 2px !important;
+    background: var(--rose-highlight-med) !important;
+    border-radius: 1px !important;
+    overflow: hidden !important;
+    margin-top: 0.25rem !important;
+}
+
+.widget-type-server-stats .progress-bar > * {
+    height: 100% !important;
+    background: var(--rose-pine) !important;
+    border-radius: 1px !important;
+    transition: width 0.3s ease !important;
+}
+
+/* Disk/Mountpoint sections */
+.widget-type-server-stats .server-disk-mountpoint,
+.widget-type-server-stats .collapsible-container > div {
+    margin-top: 0.5rem !important;
+}
+
+.widget-type-server-stats .server-disk-mountpoint:first-of-type {
+    margin-top: 0.45rem !important;
+}
+
+.widget-type-server-stats .disk-header,
+.widget-type-server-stats .server-disk-mountpoint > div:first-child {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 0.25rem !important;
+}
+
+.widget-type-server-stats .disk-name,
+.widget-type-server-stats .server-disk-mountpoint .size-h5:first-child {
+    font-family: var(--font-label) !important;
+    font-size: 8.5px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    color: var(--rose-subtle) !important;
+}
+
+.widget-type-server-stats .disk-percentage,
+.widget-type-server-stats .server-disk-mountpoint .color-highlight {
+    font-family: var(--font-mono) !important;
+    font-size: 10px !important;
+    font-weight: 500 !important;
+    color: var(--rose-pine) !important;
+    font-variant-numeric: tabular-nums !important;
+}
+
+/* Hide default separators and styles */
+.widget-type-server-stats .separator,
+.widget-type-server-stats hr {
+    display: none !important;
+}
+
+/* Collapsible toggle button */
+.widget-type-server-stats .expand-toggle-button {
+    margin-top: 0.4rem !important;
+    font-family: var(--font-label) !important;
+    font-size: 8px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    color: var(--rose-subtle) !important;
+    opacity: 0.7;
+    transition: opacity 0.15s ease;
+}
+
+.widget-type-server-stats .expand-toggle-button:hover {
+    opacity: 1;
+    color: var(--rose-pine) !important;
+}

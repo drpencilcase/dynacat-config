@@ -1,0 +1,20 @@
+# ── CONFIGURATION ────────────────────────────────────────────────────────────
+# Set these variables in your .env file:
+#
+#   BASE_DOMAIN     Your service domain (same as services.yml)
+#   PLEX_TOKEN      Your Plex authentication token
+#                   Find it: Plex Web → Account → Authorized Devices → any device URL
+#                   or run: curl -s "https://plex.tv/users/sign_in.xml" \
+#                     -X POST -H "X-Plex-Version: 1.0" -u "user:pass" | grep authToken
+#
+# This widget uses Glance's built-in latest-media type (no custom template needed).
+# It is disabled by default — to enable, add it to dynacat.yml.
+# ─────────────────────────────────────────────────────────────────────────────
+- type: latest-media
+  title: Recently Added
+  update-interval: 30m
+  item-count: 12
+  columns: 4
+  hosts:
+      - url: plex:https://plex.${BASE_DOMAIN}
+        token: ${PLEX_TOKEN}

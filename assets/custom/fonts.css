@@ -1,0 +1,95 @@
+/* ============================================================
+   DYNACAT — Self-hosted fonts
+   ============================================================ */
+
+/* Crimson Pro — Body text */
+@font-face {
+    font-family: 'Crimson Pro';
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+    src: url('/assets/custom/fonts/crimson-pro-300.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Crimson Pro';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/assets/custom/fonts/crimson-pro-400.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Crimson Pro';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/assets/custom/fonts/crimson-pro-500.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Crimson Pro';
+    font-style: italic;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/assets/custom/fonts/crimson-pro-italic-400.ttf') format('truetype');
+}
+
+/* DM Serif Display — Big numbers */
+@font-face {
+    font-family: 'DM Serif Display';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/assets/custom/fonts/dm-serif-display-400.ttf') format('truetype');
+}
+
+/* Inter — Labels and caps */
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 300;
+    font-display: swap;
+    src: url('/assets/custom/fonts/inter-300.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/assets/custom/fonts/inter-400.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/assets/custom/fonts/inter-500.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('/assets/custom/fonts/inter-600.ttf') format('truetype');
+}
+
+/* JetBrains Mono — Monospace */
+@font-face {
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/assets/custom/fonts/jetbrains-mono-400.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'JetBrains Mono';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/assets/custom/fonts/jetbrains-mono-500.ttf') format('truetype');
+}

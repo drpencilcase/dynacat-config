@@ -1,0 +1,77 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/not-first/glance-schema/master/schema.json
+server:
+    port: 8080
+    assets-path: /app/assets
+
+branding:
+    favicon-url: /assets/mayo_favicon.png
+    show-desktop-navigation-on-hover: true
+
+# Rosé Pine Theme Configuration
+theme:
+    # Rosé Pine Dark — Base background (#191724 = HSL 249° 22% 12%)
+    background-color: 249 22 12
+
+    # Iris (#c4a7e7 = HSL 267° 56% 77%) — Primary accent
+    primary-color: 267 56 77
+
+    # Foam (#9ccfd8 = HSL 189° 43% 73%) — Positive/success states
+    positive-color: 189 43 73
+
+    # Love (#eb6f92 = HSL 343° 76% 68%) — Negative/error states
+    negative-color: 343 76 68
+
+    contrast-multiplier: 1.0
+    custom-css-file: /assets/custom/custom.css
+
+    presets:
+        default-dark:
+            # Rosé Pine Dark (default)
+            background-color: 249 22 12
+            primary-color: 267 56 77
+            positive-color: 189 43 73
+            negative-color: 343 76 68
+            contrast-multiplier: 1.1
+
+        default-light:
+            # Rosé Pine Dawn (light mode)
+            light: true
+            background-color: 35 56 95
+            primary-color: 267 21 57
+            positive-color: 189 30 48
+            negative-color: 343 35 55
+            contrast-multiplier: 1.1
+
+document:
+    head: |
+        <script src="/assets/custom/command-palette.js"></script>
+        <script src="/assets/custom/shuffle.js" defer></script>
+
+pages:
+    - name: Home
+      head-widgets:
+          - $include: widgets/weather-head.yml
+      columns:
+          - size: small
+            widgets:
+                - $include: widgets/bookmarks.yml
+                - $include: widgets/server-stats.yml
+                #- $include: widgets/unifi.yml
+                - $include: widgets/pihole.yml
+
+          - size: full
+            widgets:
+                - $include: widgets/services.yml
+                - type: group
+                  widgets:
+                      - $include: widgets/miniflux.yml
+                      - $include: widgets/karakeep.yml
+                - $include: widgets/tautulli.yml
+
+          - size: small
+            widgets:
+                - $include: widgets/ticktick-tasks.yml
+                #- $include: widgets/ticktick-habits.yml
+                - $include: widgets/calendar.yml
+                - $include: widgets/parcel.yml
+                #- $include: widgets/weather.yml

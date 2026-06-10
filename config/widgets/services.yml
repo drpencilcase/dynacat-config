@@ -1,0 +1,140 @@
+# ── CONFIGURATION ────────────────────────────────────────────────────────────
+# Set this variable in your .env file:
+#
+#   BASE_DOMAIN   Your service domain, e.g. example.com
+#                 All docker-container URLs are built as https://service.${BASE_DOMAIN}
+#
+#   LEMONADE_URL  Full URL for the Lemonade monitor site
+#                 e.g. http://192.168.1.7:13305
+#   OPENWEB_URL   Full URL for the OpenWebUI monitor site
+#                 e.g. http://192.168.1.2:8088
+#
+# Add, remove, or rename container blocks to match your services.
+# The category colour for each sub-widget is set in custom.css sections 10.
+# ─────────────────────────────────────────────────────────────────────────────
+- type: split-column
+  widgets:
+      - type: docker-containers
+        hide-by-default: true
+        title: fetch
+        containers:
+            radarr:
+                name: radarr
+                url: https://radarr.${BASE_DOMAIN}
+                icon: assets/icons/radarr.svg
+                hide: false
+            sonarr:
+                name: sonarr
+                url: https://sonarr.${BASE_DOMAIN}
+                icon: assets/icons/sonarr.svg
+                hide: false
+            bazarr:
+                name: bazarr
+                url: https://bazarr.${BASE_DOMAIN}
+                icon: assets/icons/bazarr.svg
+                hide: false
+            prowlarr:
+                name: prowlarr
+                url: https://prowlarr.${BASE_DOMAIN}
+                icon: assets/icons/prowlarr.svg
+                hide: false
+            sabnzbd:
+                name: sabnzbd
+                url: https://sabnzbd.${BASE_DOMAIN}
+                icon: assets/icons/sabnzbd.svg
+                hide: false
+            qbittorrent:
+                name: qbittorrent
+                url: https://qbittorrent.${BASE_DOMAIN}
+                icon: assets/icons/qbittorrent.svg
+                hide: false
+            slskd:
+                name: slskd
+                url: https://slskd.${BASE_DOMAIN}
+                icon: assets/icons/slskd.svg
+                hide: false
+            mylar3:
+                name: mylar
+                url: https://mylar.${BASE_DOMAIN}
+                icon: assets/icons/mylar.svg
+                hide: false
+
+      - type: docker-containers
+        hide-by-default: true
+        title: consume
+        containers:
+            tautulli:
+                name: tautulli
+                url: https://tautulli.${BASE_DOMAIN}
+                icon: assets/icons/tautulli.png
+                hide: false
+            plex:
+                name: plex
+                url: https://plex.${BASE_DOMAIN}
+                icon: assets/icons/plex.svg
+                hide: false
+            booklore:
+                name: booklore
+                url: https://booklore.${BASE_DOMAIN}
+                icon: assets/icons/grimmory.svg
+                hide: false
+            audiobookshelf:
+                name: audiobookshelf
+                url: https://audiobookshelf.${BASE_DOMAIN}
+                icon: assets/icons/audiobookshelf.svg
+                hide: false
+            kavita:
+                name: kavita
+                url: https://kavita.${BASE_DOMAIN}
+                icon: assets/icons/kavita.svg
+                hide: false
+
+      - type: docker-containers
+        hide-by-default: true
+        title: process
+        containers:
+            miniflux:
+                name: miniflux
+                url: https://miniflux.${BASE_DOMAIN}
+                icon: assets/icons/miniflux.svg
+                hide: false
+            karakeep:
+                name: karakeep
+                url: https://karakeep.${BASE_DOMAIN}
+                icon: assets/icons/karakeep.svg
+                hide: false
+            wallabag:
+                name: wallabag
+                url: https://wallabag.${BASE_DOMAIN}
+                icon: assets/icons/wallabag.svg
+                hide: false
+
+      - type: docker-containers
+        hide-by-default: true
+        title: maintain
+        containers:
+            dozzle:
+                name: dozzle
+                url: https://dozzle.${BASE_DOMAIN}
+                icon: assets/icons/dozzle.svg
+                hide: false
+            gitea:
+                name: gitea
+                url: https://gitea.${BASE_DOMAIN}
+                icon: assets/icons/gitea.svg
+                hide: false
+            copyparty:
+                name: copyparty
+                url: https://copyparty.${BASE_DOMAIN}
+                icon: assets/icons/copyparty.svg
+                hide: false
+
+      - type: monitor
+        title: infer
+        sites:
+            - title: ""
+              url: ${LEMONADE_URL}
+              icon: assets/icons/lemonade.svg
+            - title: ""
+              url: ${OPENWEB_URL}
+              icon: assets/icons/openweb.svg
